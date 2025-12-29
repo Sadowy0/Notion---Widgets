@@ -11,17 +11,26 @@
         #main-scaler { display: flex; flex-direction: column; align-items: center; width: 350px; transition: transform 0.1s ease-out; padding: 10px; }
         .container, .display { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .display { gap: 0; }
-        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.4; line-height: 1; order: 1; margin-bottom: -10px; position: relative; z-index: 2; }
+        
+        /* POWIĘKSZONE STATYSTYKI NA GÓRZE */
+        .time-stats { font-size: 16px; font-weight: 700; opacity: 0.5; line-height: 1; order: 1; margin-bottom: -8px; position: relative; z-index: 2; letter-spacing: 0.5px; width: 100%; }
+        
         .timer-wrapper { position: relative; display: flex; align-items: center; justify-content: center; min-width: 280px; order: 2; z-index: 1; }
         .timer-display { font-size: 96px; font-weight: 800; line-height: 0.9; letter-spacing: -4px; font-variant-numeric: tabular-nums; transition: opacity 0.3s ease; }
         .status-text { font-size: 14px; font-weight: 800; opacity: 0.8; letter-spacing: 1px; order: 3; margin-top: 4px; line-height: 1; position: relative; z-index: 2; }
-        .controls { display: flex; gap: 12px; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; }
+        
+        .controls { display: flex; gap: 8px; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 10; }
+        
         @media (min-width: 501px) { .timer-wrapper:hover .timer-display { opacity: 0.05; } .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; } }
-        @media (max-width: 500px) { .timer-wrapper { flex-direction: column; } .controls { position: relative; opacity: 1 !important; pointer-events: auto !important; left: auto; top: auto; transform: none; margin-top: 15px; order: 4; } .timer-display { opacity: 1 !important; font-size: 88px; } }
+        @media (max-width: 500px) { .timer-wrapper { flex-direction: column; } .controls { position: relative; opacity: 1 !important; pointer-events: auto !important; left: auto; top: auto; transform: none; margin-top: 10px; order: 4; } .timer-display { opacity: 1 !important; font-size: 88px; } }
+        
         .btn { border: none; border-radius: 6px; cursor: pointer; background: rgba(255, 255, 255, 0.1); color: #ffffff; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-        .btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.02); }
-        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.5; fill: none; pointer-events: none; }
-        .ctrl-btn { width: 45px; height: 45px; }
+        .btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+        .btn svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 3; fill: none; pointer-events: none; }
+        
+        /* ZMNIEJSZONE PRZYCISKI STERUJĄCE */
+        .ctrl-btn { width: 30px; height: 30px; }
+        
         .settings { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 10px; padding: 15px; background: #1f1f1f; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 2000; width: 220px; }
         .settings.active { display: flex; }
         .settings-row { display: flex; gap: 8px; justify-content: center; }
