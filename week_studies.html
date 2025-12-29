@@ -5,31 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; }
+        html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
         body {
             font-family: -apple-system, system-ui, sans-serif;
             display: flex; justify-content: center; align-items: center;
-            color: white; text-align: center;
+            transition: transform 0.3s ease;
         }
+        /* Efekt Hover na całości */
+        body:hover { transform: scale(1.02); }
+
         .widget { 
-            width: 100%; padding: 5px; 
-            display: flex; flex-direction: column; gap: 2px;
+            text-align: center; 
+            display: flex; flex-direction: column; gap: 4px;
+            /* Skalowanie oparte na zmiennej JS */
+            transform: scale(var(--scale, 1));
+            transform-origin: center;
         }
-        /* Skalowanie: tekst nigdy nie będzie większy niż szerokość bloku */
-        .date-text { 
-            font-size: clamp(10px, 4vw, 14px); 
-            opacity: 0.6; white-space: nowrap; 
-        }
-        .week-number {
-            font-size: clamp(20px, 12vw, 42px); 
-            font-weight: 800; line-height: 1; margin: 2px 0;
-            white-space: nowrap;
-        }
-        .parity-value {
-            font-size: clamp(10px, 5vw, 18px);
-            font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1px; white-space: nowrap;
-        }
+
+        .date-text { font-size: 14px; opacity: 0.6; white-space: nowrap; }
+        .week-number { font-size: 48px; font-weight: 800; line-height: 1; margin: 4px 0; white-space: nowrap; }
+        .parity-value { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -38,23 +33,36 @@
         <div id="weekNumber" class="week-number">—</div>
         <div id="parityText" class="parity-value">—</div>
     </div>
+
     <script>
+        function autoScale() {
+            const width = window.innerWidth;
+            // Standardowa szerokość to ok. 300px. Jeśli okno ma 150px, skala = 0.5
+            const scale = Math.min(width / 300, 1.2); 
+            document.body.style.setProperty('--scale', scale);
+        }
+
         const getISOWeek = (d) => {
             const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
             return Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
         };
-        const update = () => {
+
+        function update() {
             const now = new Date();
             const week = getISOWeek(now);
             const isEven = week % 2 === 0;
-            document.getElementById("dateText").textContent = now.toLocaleDateString("pl-PL", { weekday: "short", day: "2-digit", month: "2-digit" });
+            document.getElementById("dateText").textContent = now.toLocaleDateString("pl-PL", { weekday: "long", day: "2-digit", month: "2-digit" });
             document.getElementById("weekNumber").textContent = `Tydzień ${week}`;
             const p = document.getElementById("parityText");
             p.textContent = isEven ? "parzysty" : "nieparzysty";
             p.style.color = isEven ? "#5fb6ff" : "#ff5f5f";
-        };
-        update(); setInterval(update, 3600000);
+            autoScale();
+        }
+
+        window.addEventListener('resize', autoScale);
+        update();
+        setInterval(update, 60000);
     </script>
 </body>
 </html>
