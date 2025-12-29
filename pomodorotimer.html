@@ -6,63 +6,72 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
-        body {
-            font-family: -apple-system, system-ui, sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            transition: transform 0.3s ease;
-        }
-        /* Efekt Hover na całości */
-        body:hover { transform: scale(1.02); }
+        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; }
+        
+        #scaler { width: 300px; text-align: center; transition: transform 0.1s ease-out; }
+        
+        .timer-wrapper { position: relative; height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; }
+        .timer-display { font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -2px; font-variant-numeric: tabular-nums; transition: opacity 0.3s; }
+        
+        .controls { position: absolute; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; gap: 8px; }
+        .timer-wrapper:hover .timer-display { opacity: 0.05; }
+        .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
 
-        .widget { 
-            text-align: center; 
-            display: flex; flex-direction: column; gap: 4px;
-            /* Skalowanie oparte na zmiennej JS */
-            transform: scale(var(--scale, 1));
-            transform-origin: center;
-        }
+        .btn { padding: 8px; border: none; border-radius: 4px; cursor: pointer; background: rgba(255, 255, 255, 0.1); color: white; display: flex; align-items: center; width: 32px; height: 32px; }
+        .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-        .date-text { font-size: 14px; opacity: 0.6; white-space: nowrap; }
-        .week-number { font-size: 48px; font-weight: 800; line-height: 1; margin: 4px 0; white-space: nowrap; }
-        .parity-value { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; }
+        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; margin-top: 5px; }
     </style>
 </head>
 <body>
-    <div class="widget">
-        <div id="dateText" class="date-text">—</div>
-        <div id="weekNumber" class="week-number">—</div>
-        <div id="parityText" class="parity-value">—</div>
+    <div id="scaler">
+        <div class="timer-wrapper">
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="controls">
+                <button class="btn" onclick="toggle()"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                <button class="btn" onclick="reset()"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button>
+            </div>
+        </div>
+        <div class="status-text" id="statusText">Nauka</div>
+        <div class="time-stats">
+            <span id="workM">0</span>m nauki | <span id="breakM">0</span>m pauzy
+        </div>
     </div>
 
     <script>
-        function autoScale() {
-            const width = window.innerWidth;
-            // Standardowa szerokość to ok. 300px. Jeśli okno ma 150px, skala = 0.5
-            const scale = Math.min(width / 300, 1.2); 
-            document.body.style.setProperty('--scale', scale);
+        let timeLeft = 25 * 60, isRunning = false, interval = null;
+        let stats = { w: 0, b: 0 };
+
+        function updateUI() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            document.getElementById('timerDisplay').textContent = `${m}:${String(s).padStart(2, '0')}`;
+            document.getElementById('workM').textContent = Math.floor(stats.w / 60);
+            document.getElementById('breakM').textContent = Math.floor(stats.b / 60);
+            fit();
         }
 
-        const getISOWeek = (d) => {
-            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-            return Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
-        };
-
-        function update() {
-            const now = new Date();
-            const week = getISOWeek(now);
-            const isEven = week % 2 === 0;
-            document.getElementById("dateText").textContent = now.toLocaleDateString("pl-PL", { weekday: "long", day: "2-digit", month: "2-digit" });
-            document.getElementById("weekNumber").textContent = `Tydzień ${week}`;
-            const p = document.getElementById("parityText");
-            p.textContent = isEven ? "parzysty" : "nieparzysty";
-            p.style.color = isEven ? "#5fb6ff" : "#ff5f5f";
-            autoScale();
+        function toggle() {
+            isRunning = !isRunning;
+            if (isRunning) {
+                interval = setInterval(() => {
+                    if (timeLeft > 0) { timeLeft--; stats.w++; updateUI(); }
+                }, 1000);
+            } else { clearInterval(interval); }
         }
 
-        window.addEventListener('resize', autoScale);
-        update();
-        setInterval(update, 60000);
+        function reset() { 
+            clearInterval(interval); isRunning = false; timeLeft = 25 * 60; updateUI(); 
+        }
+
+        function fit() {
+            const container = document.getElementById('scaler');
+            const scale = Math.min(window.innerWidth / 300, window.innerHeight / 150, 1);
+            container.style.transform = `scale(${scale})`;
+        }
+
+        window.onresize = fit;
+        updateUI();
     </script>
 </body>
 </html>
