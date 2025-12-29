@@ -22,7 +22,7 @@
         
         .timer-wrapper {
             position: relative; display: flex; align-items: center; justify-content: center;
-            min-width: 240px; min-height: 80px; order: 1;
+            min-width: 240px; min-height: 80px;
         }
         .timer-display {
             font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -2px;
@@ -41,11 +41,12 @@
             .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
         }
 
-        /* MOBILNY UKŁAD (Przyciski pod spodem) */
+        /* MOBILNY UKŁAD */
         @media (max-width: 500px) {
+            .timer-wrapper { flex-direction: column; min-height: 140px; }
             .controls {
-                position: relative; opacity: 1; pointer-events: auto;
-                left: auto; top: auto; transform: none; margin-top: 15px; order: 4;
+                position: relative; opacity: 1 !important; pointer-events: auto !important;
+                left: auto; top: auto; transform: none; margin-top: 15px;
             }
             .timer-display { opacity: 1 !important; }
         }
@@ -54,18 +55,20 @@
             padding: 8px; border: none; border-radius: 4px; cursor: pointer;
             background: rgba(255, 255, 255, 0.1); color: #ffffff;
             transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn:hover { background: rgba(255, 255, 255, 0.2); }
-        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; pointer-events: none; }
         
-        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; order: 2; line-height: 1; margin: 5px 0; }
-        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; order: 3; line-height: 1.2; }
+        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; line-height: 1; margin: 5px 0; }
+        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; line-height: 1.2; }
         
         /* Ustawienia */
         .settings {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            flex-direction: column; gap: 12px; padding: 15px; background: rgba(25, 25, 25, 0.98);
-            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 1000; width: 280px;
+            flex-direction: column; gap: 12px; padding: 15px; background: #1f1f1f;
+            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 2000; width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .settings.active { display: flex; }
         .settings-row { display: flex; gap: 10px; justify-content: center; align-items: flex-end; }
@@ -81,7 +84,18 @@
         .toggle-btn::before { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
         .toggle-btn.active::before { left: 22px; }
 
-        .overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; z-index:999; background: rgba(0,0,0,0.5); }
+        /* CZERWONY PRZYCISK RESETU Z IKONĄ */
+        .btn-reset {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            margin-top: 5px;
+            font-weight: 700;
+            gap: 8px; /* Odstęp między ikoną a tekstem */
+        }
+        .btn-reset:hover { background: rgba(255, 59, 48, 0.25); }
+        .btn-reset svg { stroke: #ff3b30; width: 14px; height: 14px; }
+
+        .overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; z-index:1500; background: rgba(0,0,0,0.7); }
         .overlay.active { display: block; }
     </style>
 </head>
@@ -119,6 +133,10 @@
             </div>
         </div>
         <button class="btn" style="width:100%; margin-top:10px; font-size:10px;" id="saveSettings">ZAPISZ</button>
+        <button class="btn btn-reset" style="width:100%; font-size:10px;" id="resetStats">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            RESETUJ STATYSTYKI
+        </button>
     </div>
 
     <script>
@@ -139,7 +157,7 @@
         }
 
         function fit() {
-            const scale = Math.min(window.innerWidth / 320, window.innerHeight / 220, 1);
+            const scale = Math.min(window.innerWidth / 320, window.innerHeight / 300, 1);
             el('main-scaler').style.transform = `scale(${scale})`;
         }
 
@@ -209,6 +227,15 @@
             localStorage.setItem('pomoConfig', JSON.stringify(config));
             stop(); timeLeft = config.work * 60; isWork = true; sessionsUntilLong = 4;
             el('overlay').click(); updateUI();
+        };
+
+        el('resetStats').onclick = () => {
+            if (confirm("Czy na pewno chcesz wyzerować statystyki nauki i przerwy?")) {
+                stats = { workSecs: 0, breakSecs: 0 };
+                localStorage.setItem('pomoStats', JSON.stringify(stats));
+                updateUI();
+                el('overlay').click();
+            }
         };
 
         window.onresize = fit;
