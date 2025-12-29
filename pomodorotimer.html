@@ -6,22 +6,29 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
-        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; }
+        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: flex-start; padding-top: 10px; }
         
-        #scaler { width: 300px; text-align: center; transition: transform 0.1s ease-out; }
+        #scaler { width: 300px; text-align: center; transform-origin: top center; transition: transform 0.1s; }
         
-        .timer-wrapper { position: relative; height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; }
-        .timer-display { font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -2px; font-variant-numeric: tabular-nums; transition: opacity 0.3s; }
+        .timer-wrapper { position: relative; height: 90px; display: flex; align-items: center; justify-content: center; }
+        .timer-display { font-size: 64px; font-weight: 700; letter-spacing: -2px; font-variant-numeric: tabular-nums; }
         
-        .controls { position: absolute; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; gap: 8px; }
-        .timer-wrapper:hover .timer-display { opacity: 0.05; }
+        .controls { position: absolute; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; gap: 8px; background: rgba(25,25,25,0.9); padding: 10px; border-radius: 10px; }
         .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
+        .timer-wrapper:hover .timer-display { opacity: 0.1; }
 
-        .btn { padding: 8px; border: none; border-radius: 4px; cursor: pointer; background: rgba(255, 255, 255, 0.1); color: white; display: flex; align-items: center; width: 32px; height: 32px; }
-        .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; }
-        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; margin-top: 5px; }
+        .status-text { font-size: 14px; font-weight: 600; opacity: 0.8; margin-top: -5px; }
+        .time-stats { font-size: 12px; opacity: 0.5; margin-top: 5px; }
+
+        /* MODAL USTAWIEŃ */
+        .settings { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #191919; z-index: 100; flex-direction: column; padding: 20px; gap: 10px; }
+        .settings.active { display: flex; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        input { background: #222; border: 1px solid #333; color: white; padding: 8px; border-radius: 5px; width: 60px; text-align: center; }
+        .save-btn { background: #5fb6ff; color: black; font-weight: bold; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -31,6 +38,7 @@
             <div class="controls">
                 <button class="btn" onclick="toggle()"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
                 <button class="btn" onclick="reset()"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button>
+                <button class="btn" onclick="openSettings()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
             </div>
         </div>
         <div class="status-text" id="statusText">Nauka</div>
@@ -39,37 +47,39 @@
         </div>
     </div>
 
-    <script>
-        let timeLeft = 25 * 60, isRunning = false, interval = null;
-        let stats = { w: 0, b: 0 };
+    <div class="settings" id="settingsMenu">
+        <h3 style="font-size: 14px; margin-bottom: 10px;">Ustawienia</h3>
+        <div class="setting-row"><label>Praca (min)</label><input type="number" id="inW" value="25"></div>
+        <div class="setting-row"><label>Pauza (min)</label><input type="number" id="inB" value="5"></div>
+        <button class="save-btn" onclick="saveSettings()">Zapisz i zamknij</button>
+    </div>
 
+    <script>
+        let timeLeft = 25 * 60, isRunning = false, interval = null, workM = 0, breakM = 0;
         function updateUI() {
             const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('timerDisplay').textContent = `${m}:${String(s).padStart(2, '0')}`;
-            document.getElementById('workM').textContent = Math.floor(stats.w / 60);
-            document.getElementById('breakM').textContent = Math.floor(stats.b / 60);
+            document.getElementById('workM').textContent = Math.floor(workM / 60);
+            document.getElementById('breakM').textContent = Math.floor(breakM / 60);
             fit();
         }
-
         function toggle() {
             isRunning = !isRunning;
-            if (isRunning) {
-                interval = setInterval(() => {
-                    if (timeLeft > 0) { timeLeft--; stats.w++; updateUI(); }
-                }, 1000);
-            } else { clearInterval(interval); }
+            if (isRunning) { interval = setInterval(() => { if (timeLeft > 0) { timeLeft--; workM++; updateUI(); } }, 1000); }
+            else { clearInterval(interval); }
         }
-
-        function reset() { 
-            clearInterval(interval); isRunning = false; timeLeft = 25 * 60; updateUI(); 
+        function reset() { clearInterval(interval); isRunning = false; timeLeft = 25 * 60; updateUI(); }
+        function openSettings() { document.getElementById('settingsMenu').classList.add('active'); }
+        function saveSettings() {
+            const w = parseInt(document.getElementById('inW').value);
+            timeLeft = w * 60;
+            document.getElementById('settingsMenu').classList.remove('active');
+            updateUI();
         }
-
         function fit() {
-            const container = document.getElementById('scaler');
-            const scale = Math.min(window.innerWidth / 300, window.innerHeight / 150, 1);
-            container.style.transform = `scale(${scale})`;
+            const scale = Math.min(window.innerWidth / 300, 1);
+            document.getElementById('scaler').style.transform = `scale(${scale})`;
         }
-
         window.onresize = fit;
         updateUI();
     </script>
