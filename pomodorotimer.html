@@ -5,64 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Timer</title>
     <style>
+        /* Reset i blokada scrolli */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; }
+        html, body { 
+            height: 100%; 
+            width: 100%; 
+            overflow: hidden; /* Brak suwaków */
+            background: #191919;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #191919;
-            display: grid;
-            place-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             text-align: center;
             color: #ffffff;
-            padding: 20px;
+            padding: 5px; /* Minimalny margines */
         }
-        .container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-        .display { display: flex; flex-direction: column; align-items: center; gap: 0; position: relative; }
-        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; order: 3; line-height: 1.2; }
+
+        .container { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%;
+            gap: 8px; 
+        }
+
+        .display { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 100%;
+            position: relative; 
+        }
+
+        /* Statystyki na dole - responsywne */
+        .time-stats { 
+            font-size: clamp(9px, 2.5vw, 12px); 
+            font-weight: 500; 
+            opacity: 0.6; 
+            order: 3; 
+            line-height: 1.2; 
+            white-space: nowrap;
+        }
+
         .timer-wrapper {
-            position: relative; display: flex; align-items: center; justify-content: center;
-            min-width: 240px; min-height: 80px; order: 1;
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 100%; 
+            aspect-ratio: 3 / 1; /* Utrzymuje proporcje */
+            max-height: 100px;
+            order: 1;
         }
+
         .timer-display {
-            font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -2px;
-            font-variant-numeric: tabular-nums; min-width: 240px; opacity: 1;
+            /* Dynamiczna wielkość: min 32px, max 64px */
+            font-size: clamp(32px, 15vw, 64px); 
+            font-weight: 700; 
+            line-height: 1; 
+            letter-spacing: -2px;
+            font-variant-numeric: tabular-nums; 
             transition: opacity 0.3s ease;
+            white-space: nowrap;
         }
+
+        /* Ukrywanie licznika po najechaniu myszką, by pokazać przyciski */
         .timer-wrapper:hover .timer-display { opacity: 0; pointer-events: none; }
+
         .controls {
-            display: flex; flex-direction: row; gap: 8px; opacity: 0; transition: opacity 0.3s ease;
-            pointer-events: none; position: absolute; left: 50%; top: 50%;
-            transform: translate(-50%, -50%); z-index: 10;
+            display: flex; 
+            flex-direction: row; 
+            gap: clamp(4px, 2vw, 8px); 
+            opacity: 0; 
+            transition: opacity 0.3s ease;
+            pointer-events: none; 
+            position: absolute; 
+            left: 50%; 
+            top: 50%;
+            transform: translate(-50%, -50%); 
+            z-index: 10;
         }
+
         .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
+
         .btn {
-            padding: 8px; border: none; border-radius: 4px; cursor: pointer;
-            background: rgba(255, 255, 255, 0.1); color: #ffffff;
-            transition: all 0.2s ease; display: flex; align-items: center;
-            justify-content: center; width: 32px; height: 32px;
+            padding: 6px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1); 
+            color: #ffffff;
+            transition: all 0.2s ease; 
+            display: flex; 
+            align-items: center;
+            justify-content: center; 
+            width: clamp(28px, 8vw, 36px); 
+            height: clamp(28px, 8vw, 36px);
         }
+
         .btn:hover { background: rgba(255, 255, 255, 0.2); }
-        .btn:active { transform: scale(0.95); }
-        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; order: 2; line-height: 1; }
+        .btn svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 2; fill: none; }
+
+        .status-text { 
+            font-size: clamp(10px, 3vw, 14px); 
+            font-weight: 500; 
+            opacity: 0.7; 
+            order: 2; 
+            margin-bottom: 2px;
+        }
+
+        /* Ustawienia - dostosowane do małych okien */
         .settings {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            flex-direction: column; gap: 10px; padding: 12px; background: rgba(25, 25, 25, 0.95);
-            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 1000;
-            max-height: 80vh; overflow-y: auto;
+            display: none; 
+            position: fixed; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            flex-direction: column; 
+            gap: 8px; 
+            padding: 10px; 
+            background: rgba(30, 30, 30, 0.98);
+            border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            z-index: 1000;
+            width: 90%;
+            max-width: 220px;
         }
         .settings.active { display: flex; }
-        .settings-row { display: flex; flex-direction: row; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-        .setting-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .setting-label { font-size: 10px; font-weight: 600; opacity: 0.7; text-transform: uppercase; }
-        .setting-input { width: 40px; padding: 4px 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 3px; font-size: 11px; font-weight: 500; text-align: center; }
-        .setting-input-text { width: 70px; padding: 4px 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 3px; font-size: 11px; font-weight: 500; text-align: center; }
-        .toggle-checkbox { width: 24px; height: 14px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 7px; cursor: pointer; position: relative; transition: all 0.2s ease; }
-        .toggle-checkbox.active { background: rgba(76, 175, 80, 0.6); }
+        .settings-row { display: flex; justify-content: space-between; gap: 4px; align-items: flex-end; }
+        .setting-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+        .setting-label { font-size: 9px; font-weight: 600; opacity: 0.7; text-transform: uppercase; margin-bottom: 2px; }
+        .setting-input { width: 100%; padding: 4px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 3px; font-size: 11px; text-align: center; }
+        
+        .toggle-checkbox { width: 24px; height: 14px; background: rgba(255, 255, 255, 0.2); border-radius: 7px; cursor: pointer; position: relative; border:none; }
+        .toggle-checkbox.active { background: #4caf50; }
         .toggle-checkbox::after { content: ''; position: absolute; width: 10px; height: 10px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
         .toggle-checkbox.active::after { left: 12px; }
-        .btn-small { padding: 4px 8px; font-size: 10px; background: rgba(255, 255, 255, 0.1); height: 28px; width: auto; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; }
+
+        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
         .overlay.active { display: block; }
     </style>
 </head>
@@ -94,24 +176,24 @@
                 <input type="number" class="setting-input" id="workMinutes" value="25">
             </div>
             <div class="setting-item">
-                <label class="setting-label">Przerwa</label>
+                <label class="setting-label">Pauza</label>
                 <input type="number" class="setting-input" id="breakMinutes" value="5">
             </div>
             <div class="setting-item">
                 <label class="setting-label">Długa</label>
                 <input type="number" class="setting-input" id="longBreakMinutes" value="15">
             </div>
-            <div class="setting-item">
-                <label class="setting-label" style="opacity:0">LB</label>
-                <button class="toggle-checkbox active" id="longBreakToggle"></button>
-            </div>
         </div>
         <div class="settings-row">
-            <div class="setting-item">
-                <label class="setting-label">Nazwa sesji</label>
-                <input type="text" class="setting-input-text" id="sessionNameInput" value="nauka">
+            <div class="setting-item" style="flex: 2;">
+                <label class="setting-label">Nazwa</label>
+                <input type="text" class="setting-input" id="sessionNameInput" value="nauka">
             </div>
-            <button class="btn btn-small" id="closeSettingsBtn">OK</button>
+            <div class="setting-item">
+                <label class="setting-label">LB</label>
+                <button class="toggle-checkbox active" id="longBreakToggle"></button>
+            </div>
+            <button class="btn" id="closeSettingsBtn" style="width: auto; padding: 0 10px; font-size: 10px;">OK</button>
         </div>
     </div>
 
@@ -138,20 +220,21 @@
         let isRunning = false, isWork = true, sessionsUntilLong = 4, intervalId = null;
 
         function playBell() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.8);
+            } catch(e) { console.log("Audio play blocked"); }
         }
 
         function updateUI() {
             const mins = Math.floor(timeLeft / 60), secs = timeLeft % 60;
             const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             dom.display.textContent = timeStr;
-            document.title = `${timeStr} - ${isWork ? config.name : 'Przerwa'}`;
             dom.workTotal.textContent = Math.floor(stats.workSecs / 60);
             dom.breakTotal.textContent = Math.floor(stats.breakSecs / 60);
             dom.sessionName.textContent = config.name;
@@ -159,13 +242,17 @@
         }
 
         function tick() {
-            const newTimeLeft = Math.max(0, Math.round((endTime - Date.now()) / 1000));
-            const diff = lastTimeLeft - newTimeLeft;
+            if (!isRunning) return;
+            const now = Date.now();
+            timeLeft = Math.max(0, Math.round((endTime - now) / 1000));
+            
+            const diff = lastTimeLeft - timeLeft;
             if (diff > 0) {
                 isWork ? stats.workSecs += diff : stats.breakSecs += diff;
                 localStorage.setItem('pomoStatsSec', JSON.stringify(stats));
             }
-            timeLeft = lastTimeLeft = newTimeLeft;
+            lastTimeLeft = timeLeft;
+
             if (timeLeft <= 0) {
                 playBell();
                 switchPhase();
@@ -189,9 +276,7 @@
         function start() {
             if (isRunning) return;
             isRunning = true;
-            if (!audioCtx) audioCtx = new AudioContext();
             endTime = Date.now() + (timeLeft * 1000);
-            lastTimeLeft = timeLeft;
             intervalId = setInterval(tick, 200);
             dom.startBtn.style.display = 'none';
             dom.stopBtn.style.display = 'flex';
@@ -225,12 +310,6 @@
 
         dom.longBreakToggle.onclick = () => dom.longBreakToggle.classList.toggle('active');
         dom.overlay.onclick = () => el('closeSettingsBtn').click();
-
-        el('workMinutes').value = config.work;
-        el('breakMinutes').value = config.break;
-        el('longBreakMinutes').value = config.long;
-        el('sessionNameInput').value = config.name;
-        if (!config.lbEnabled) dom.longBreakToggle.classList.remove('active');
 
         updateUI();
     </script>
