@@ -5,43 +5,26 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tydzień na studiach</title>
   <style>
-    html, body { height:100%; }
+    html, body { height: 100%; }
     body{
-      margin:0;
-      background:transparent;      /* zlewa się z tłem Notion */
-      display:grid;
-      place-items:center;          /* wyśrodkowanie widgetu na stronie */
+      margin: 0;
+      background: transparent;      /* zlewa się z tłem Notion */
+      display: grid;
+      place-items: center;          /* wyśrodkowanie całości */
+      text-align: center;           /* wyśrodkowanie tekstu */
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color: rgba(255,255,255,.92);
+      color: rgba(255,255,255,.92); /* pod dark mode; jak używasz jasnego motywu, zmień na ciemny */
     }
-    .card{
-      min-width:240px;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18); /* lekka “mgiełka”, żeby nie znikało */
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      text-align:center;           /* wyśrodkowanie treści w środku */
-    }
-    .top{ opacity:.75; font-size:12px; margin-bottom:6px; }
-    .week{ font-size:22px; font-weight:750; line-height:1.2; }
-    .tag{
-      display:inline-block;
-      margin-top:8px;
-      font-size:12px;
-      padding:3px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.08);
-    }
+    .date { font-size: 12px; opacity: .75; margin-bottom: 6px; }
+    .week { font-size: 28px; font-weight: 750; line-height: 1.1; }
+    .parity { margin-top: 6px; font-size: 14px; opacity: .9; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="top" id="dateText">—</div>
+  <div>
+    <div class="date" id="dateText">—</div>
     <div class="week" id="weekText">—</div>
-    <div class="tag" id="parityTag">—</div>
+    <div class="parity" id="parityText">—</div>
   </div>
 
   <script>
@@ -62,7 +45,7 @@
       today.toLocaleDateString("pl-PL", { weekday:"long", year:"numeric", month:"2-digit", day:"2-digit" });
 
     document.getElementById("weekText").textContent = `Tydzień ${week}`;
-    document.getElementById("parityTag").textContent = even ? "parzysty" : "nieparzysty";
+    document.getElementById("parityText").textContent = even ? "parzysty" : "nieparzysty";
   </script>
 </body>
 </html>
