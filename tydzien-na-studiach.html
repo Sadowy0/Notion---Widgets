@@ -1,51 +1,174 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tydzień na studiach</title>
-  <style>
-    html, body { height: 100%; }
-    body{
-      margin: 0;
-      background: transparent;      /* zlewa się z tłem Notion */
-      display: grid;
-      place-items: center;          /* wyśrodkowanie całości */
-      text-align: center;           /* wyśrodkowanie tekstu */
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color: rgba(255,255,255,.92); /* pod dark mode; jak używasz jasnego motywu, zmień na ciemny */
-    }
-    .date { font-size: 12px; opacity: .75; margin-bottom: 6px; }
-    .week { font-size: 28px; font-weight: 750; line-height: 1.1; }
-    .parity { margin-top: 6px; font-size: 14px; opacity: .9; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numer Tygodnia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: transparent;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .container {
+            background: transparent;
+            border: none;
+            padding: 0;
+            max-width: none;
+            width: auto;
+        }
+
+        h1 {
+            display: none;
+        }
+
+        .input-group {
+            display: none;
+        }
+
+        label {
+            display: none;
+        }
+
+        input[type="date"] {
+            display: none;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+        }
+
+        .result-box {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            text-align: center;
+            margin-top: 0;
+            box-shadow: none;
+        }
+
+        .week-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .parity {
+            font-size: 16px;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            margin-bottom: 0;
+        }
+
+        .parity-label {
+            display: none;
+        }
+
+        .parity-value {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        .even {
+            background: transparent;
+        }
+
+        .odd {
+            background: transparent;
+        }
+
+        button {
+            display: none;
+        }
+
+        button:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        button:active {
+            transform: none;
+        }
+
+        .info {
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div>
-    <div class="date" id="dateText">—</div>
-    <div class="week" id="weekText">—</div>
-    <div class="parity" id="parityText">—</div>
-  </div>
+    <div class="container">
+        <div id="resultBox" class="result-box">
+            <div class="date-text" id="dateText"></div>
+            <div class="week-number" id="weekNumber"></div>
+            <div class="parity">
+                <div class="parity-value" id="parityText"></div>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    // ISO week (nearest Thursday)
-    function isoWeek(date) {
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const day = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - day);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
+    <script>
+        // Ustaw dzisiejszą datę jako domyślną
+        const today = new Date();
+        const dateInput = document.getElementById('dateInput');
+        dateInput.valueAsDate = today;
 
-    const today = new Date();
-    const week = isoWeek(today);
-    const even = week % 2 === 0;
+        function checkWeek() {
+            const dateInput = document.getElementById('dateInput');
+            const selectedDate = new Date(dateInput.value);
 
-    document.getElementById("dateText").textContent =
-      today.toLocaleDateString("pl-PL", { weekday:"long", year:"numeric", month:"2-digit", day:"2-digit" });
+            if (isNaN(selectedDate.getTime())) {
+                alert('Proszę wybrać prawidłową datę!');
+                return;
+            }
 
-    document.getElementById("weekText").textContent = `Tydzień ${week}`;
-    document.getElementById("parityText").textContent = even ? "parzysty" : "nieparzysty";
-  </script>
+            // Oblicz numer tygodnia ISO 8601
+            const firstDayOfYear = new Date(selectedDate.getFullYear(), 0, 1);
+            const pastDaysOfYear = (selectedDate - firstDayOfYear) / 86400000;
+            const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+
+            // Sprawdź czy tygodniu jest parzysty czy nieparzysty
+            const isParity = weekNumber % 2 === 0;
+            const parityText = isParity ? 'PARZYSTY ✓' : 'NIEPARZYSTY ✗';
+            const parityClass = isParity ? 'even' : 'odd';
+
+            // Wyświetl wyniki
+            const resultBox = document.getElementById('resultBox');
+            document.getElementById('weekNumber').textContent = `Tydzień nr ${weekNumber}`;
+            document.getElementById('parityText').textContent = parityText;
+            document.getElementById('parityStatus').className = parityClass;
+
+            resultBox.classList.remove('hidden');
+        }
+
+        // Sprawdź przy wciśnięciu Enter
+        document.getElementById('dateInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkWeek();
+        });
+
+        // Automatycznie sprawdzaj zmianę daty
+        document.getElementById('dateInput').addEventListener('change', checkWeek);
+    </script>
 </body>
 </html>
