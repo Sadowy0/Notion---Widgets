@@ -8,17 +8,45 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; text-align: center; }
-        #main-scaler { display: flex; flex-direction: column; align-items: center; width: 300px; transition: transform 0.1s ease-out; padding: 5px; }
+        
+        /* Baza identyczna jak w widżecie tygodnia */
+        #main-scaler { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 300px; 
+            transition: transform 0.1s ease-out; 
+            padding: 10px;
+        }
+
         .container, .display { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .display { gap: 0; }
-        .time-stats { font-size: 16px; font-weight: 700; opacity: 0.5; line-height: 1; order: 1; margin-bottom: -5px; position: relative; z-index: 2; letter-spacing: 0.5px; width: 100%; pointer-events: none; }
-        .timer-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; order: 2; z-index: 1; }
-        .timer-display { font-size: 110px; font-weight: 900; line-height: 0.85; letter-spacing: -5px; font-variant-numeric: tabular-nums; display: flex; align-items: center; }
+        
+        /* Statystyki na górze - czytelne, ale nie przytłaczające */
+        .time-stats { font-size: 14px; font-weight: 500; opacity: 0.6; line-height: 1.2; order: 1; margin-bottom: -8px; }
+        
+        .timer-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; order: 2; }
+        
+        /* Zbalansowana wielkość zegara dla bazy 300px */
+        .timer-display { 
+            font-size: 82px; 
+            font-weight: 700; 
+            line-height: 1; 
+            letter-spacing: -3px; 
+            font-variant-numeric: tabular-nums; 
+            display: flex; 
+            align-items: center; 
+        }
+
         .t-btn { cursor: pointer; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
         .t-btn:hover { opacity: 0.6; }
-        .colon-box { display: flex; flex-direction: column; justify-content: center; gap: 12px; height: 100%; padding: 0 4px; margin-top: 5px; }
-        .dot { width: 12px; height: 12px; background: white; border-radius: 50%; pointer-events: none; }
-        .status-text { font-size: 18px; font-weight: 900; opacity: 0.9; letter-spacing: 1.5px; order: 3; margin-top: 2px; line-height: 1; position: relative; z-index: 2; pointer-events: none; text-transform: uppercase; }
+        
+        .colon-box { display: flex; flex-direction: column; justify-content: center; gap: 10px; height: 100%; padding: 0 4px; }
+        .dot { width: 10px; height: 10px; background: white; border-radius: 50%; pointer-events: none; }
+
+        /* Status na dole */
+        .status-text { font-size: 16px; font-weight: 700; opacity: 0.8; letter-spacing: 1px; order: 3; margin-top: 0px; text-transform: uppercase; }
+
+        /* Ustawienia */
         .settings { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 10px; padding: 15px; background: #1f1f1f; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 2000; width: 220px; }
         .settings.active { display: flex; }
         .settings-row { display: flex; gap: 8px; justify-content: center; }
@@ -43,7 +71,7 @@
     <div id="main-scaler">
         <div class="container">
             <div class="display">
-                <div class="time-stats"><span id="workMinutesTotal">0</span>m <span id="sessionName">nauki</span> | <span id="breakMinutesTotal">0</span>m pauzy</div>
+                <div class="time-stats"><span id="workMinutesTotal">0</span>m nauki | <span id="breakMinutesTotal">0</span>m pauzy</div>
                 <div class="timer-wrapper">
                     <div class="timer-display">
                         <span id="m1" class="t-btn">2</span><span id="m2">5</span>
@@ -79,10 +107,11 @@
             e('s1').textContent=ss[0]; e('s2').textContent=ss[1];
             e('workMinutesTotal').textContent=Math.floor(s.workSecs/60); e('breakMinutesTotal').textContent=Math.floor(s.breakSecs/60);
             e('statusText').textContent=w?c.name.toUpperCase():(sl===0&&c.lbEnabled?"DŁUGA PRZERWA":"PRZERWA");
-            document.title=`${ms}:${ss} - ${w?c.name:'Przerwa'}`; fit();
+            fit();
         };
 
         const fit=()=>{ 
+            // Skalowanie identyczne jak w widżecie tygodnia (min(W/300, H/150, 1))
             const sc = Math.min(window.innerWidth / 300, window.innerHeight / 150, 1); 
             e('main-scaler').style.transform = `scale(${sc})`; 
         };
@@ -113,15 +142,8 @@
             c.lbEnabled=e('lbToggle').classList.contains('active'); localStorage.setItem('pomoConfig',JSON.stringify(c));
             stop(); t=c.work*60; w=true; sl=4; e('overlay').click(); update();
         };
-        
-        // RESET BEZ POTWIERDZENIA
-        e('reset').onclick=()=>{ 
-            s={workSecs:0,breakSecs:0}; 
-            localStorage.setItem('pomoStats',JSON.stringify(s)); 
-            update(); 
-            e('overlay').click(); 
-        };
-        
+        e('reset').onclick=()=>{ s={workSecs:0,breakSecs:0}; localStorage.setItem('pomoStats',JSON.stringify(s)); update(); e('overlay').click(); };
+
         window.onresize = fit; update();
     </script>
 </body>
