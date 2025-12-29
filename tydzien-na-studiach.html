@@ -1,51 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tydzień na studiach</title>
-  <style>
-    html, body { height: 100%; margin: 0; padding: 0; }
-    body{
-      background: linear-gradient(135deg, rgba(20,20,25,.75) 0%, rgba(30,30,35,.75) 100%);
-      display: grid;
-      place-items: center;
-      text-align: center;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: #fff;
-    }
-    .date { font-size: 14px; opacity: .8; margin-bottom: 8px; }
-    .week { font-size: 36px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
-    .parity { font-size: 16px; font-weight: 600; opacity: .95; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tydzień na studiach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, rgba(20,20,25,.85) 0%, rgba(30,30,35,.85) 100%);
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .container {
+            padding: 0;
+        }
+
+        .date-text {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-bottom: 8px;
+        }
+
+        .week-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .parity-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
-  <div>
-    <div class="date" id="dateText">—</div>
-    <div class="week" id="weekText">—</div>
-    <div class="parity" id="parityText">—</div>
-  </div>
+    <div class="container">
+        <div class="date-text" id="dateText">—</div>
+        <div class="week-number" id="weekNumber">—</div>
+        <div class="parity-value" id="parityText">—</div>
+    </div>
 
-  <script>
-    function isoWeek(date) {
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const day = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - day);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
+    <script>
+        // ISO week (nearest Thursday)
+        function isoWeek(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const day = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - day);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
 
-    const today = new Date();
-    const week = isoWeek(today);
-    const even = week % 2 === 0;
+        const today = new Date();
+        const week = isoWeek(today);
+        const even = week % 2 === 0;
 
-    const dayName = today.toLocaleDateString("pl-PL", { weekday: "long" });
-    const dayNameCap = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-    const dateFmt = today.toLocaleDateString("pl-PL", { year:"numeric", month:"2-digit", day:"2-digit" });
+        const dayName = today.toLocaleDateString("pl-PL", { weekday: "long" });
+        const dayNameCap = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+        const dateFmt = today.toLocaleDateString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit" });
 
-    document.getElementById("dateText").textContent = \`\${dayNameCap}, \${dateFmt}\`;
-    document.getElementById("weekText").textContent = \`Tydzień \${week}\`;
-    document.getElementById("parityText").textContent = even ? "parzysty" : "nieparzysty";
-  <\/script>
+        document.getElementById("dateText").textContent = dayNameCap + ", " + dateFmt;
+        document.getElementById("weekNumber").textContent = "Tydzień " + week;
+        document.getElementById("parityText").textContent = even ? "parzysty" : "nieparzysty";
+    </script>
 </body>
 </html>
