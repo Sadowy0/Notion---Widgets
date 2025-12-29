@@ -3,315 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Timer</title>
     <style>
-        /* Reset i blokada scrolli */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { 
-            height: 100%; 
-            width: 100%; 
-            overflow: hidden; /* Brak suwaków */
-            background: #191919;
-        }
-        
+        html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #ffffff;
-            padding: 5px; /* Minimalny margines */
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex; justify-content: center; align-items: center;
         }
-
-        .container { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 100%;
-            gap: 8px; 
-        }
-
-        .display { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 100%;
-            position: relative; 
-        }
-
-        /* Statystyki na dole - responsywne */
-        .time-stats { 
-            font-size: clamp(9px, 2.5vw, 12px); 
-            font-weight: 500; 
-            opacity: 0.6; 
-            order: 3; 
-            line-height: 1.2; 
-            white-space: nowrap;
-        }
-
+        .container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        
         .timer-wrapper {
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            width: 100%; 
-            aspect-ratio: 3 / 1; /* Utrzymuje proporcje */
-            max-height: 100px;
-            order: 1;
+            position: relative; width: 100%; 
+            display: flex; align-items: center; justify-content: center;
         }
-
         .timer-display {
-            /* Dynamiczna wielkość: min 32px, max 64px */
-            font-size: clamp(32px, 15vw, 64px); 
-            font-weight: 700; 
-            line-height: 1; 
-            letter-spacing: -2px;
-            font-variant-numeric: tabular-nums; 
-            transition: opacity 0.3s ease;
-            white-space: nowrap;
+            font-size: clamp(28px, 14vw, 56px);
+            font-weight: 700; letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
         }
-
-        /* Ukrywanie licznika po najechaniu myszką, by pokazać przyciski */
-        .timer-wrapper:hover .timer-display { opacity: 0; pointer-events: none; }
-
+        .timer-wrapper:hover .timer-display { opacity: 0.1; }
+        
         .controls {
-            display: flex; 
-            flex-direction: row; 
-            gap: clamp(4px, 2vw, 8px); 
-            opacity: 0; 
-            transition: opacity 0.3s ease;
-            pointer-events: none; 
-            position: absolute; 
-            left: 50%; 
-            top: 50%;
-            transform: translate(-50%, -50%); 
-            z-index: 10;
+            position: absolute; display: flex; gap: 8px;
+            opacity: 0; transition: 0.2s; pointer-events: none;
         }
-
         .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
-
+        
         .btn {
-            padding: 6px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.1); 
-            color: #ffffff;
-            transition: all 0.2s ease; 
-            display: flex; 
-            align-items: center;
-            justify-content: center; 
-            width: clamp(28px, 8vw, 36px); 
-            height: clamp(28px, 8vw, 36px);
+            width: 32px; height: 32px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.15); color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
+        .btn svg { width: 18px; height: 18px; fill: currentColor; }
 
-        .btn:hover { background: rgba(255, 255, 255, 0.2); }
-        .btn svg { width: 100%; height: 100%; stroke: currentColor; stroke-width: 2; fill: none; }
-
-        .status-text { 
-            font-size: clamp(10px, 3vw, 14px); 
-            font-weight: 500; 
-            opacity: 0.7; 
-            order: 2; 
-            margin-bottom: 2px;
-        }
-
-        /* Ustawienia - dostosowane do małych okien */
+        .status-text { font-size: clamp(10px, 4vw, 14px); opacity: 0.8; font-weight: 600; }
+        .stats { font-size: clamp(8px, 3vw, 11px); opacity: 0.5; white-space: nowrap; }
+        
+        /* Ustawienia kompaktowe */
         .settings {
-            display: none; 
-            position: fixed; 
-            top: 50%; left: 50%; 
-            transform: translate(-50%, -50%);
-            flex-direction: column; 
-            gap: 8px; 
-            padding: 10px; 
-            background: rgba(30, 30, 30, 0.98);
-            border-radius: 8px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            z-index: 1000;
-            width: 90%;
-            max-width: 220px;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #191919; z-index: 100; flex-direction: column; justify-content: center; gap: 10px; padding: 10px;
         }
         .settings.active { display: flex; }
-        .settings-row { display: flex; justify-content: space-between; gap: 4px; align-items: flex-end; }
-        .setting-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
-        .setting-label { font-size: 9px; font-weight: 600; opacity: 0.7; text-transform: uppercase; margin-bottom: 2px; }
-        .setting-input { width: 100%; padding: 4px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 3px; font-size: 11px; text-align: center; }
-        
-        .toggle-checkbox { width: 24px; height: 14px; background: rgba(255, 255, 255, 0.2); border-radius: 7px; cursor: pointer; position: relative; border:none; }
-        .toggle-checkbox.active { background: #4caf50; }
-        .toggle-checkbox::after { content: ''; position: absolute; width: 10px; height: 10px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
-        .toggle-checkbox.active::after { left: 12px; }
-
-        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
-        .overlay.active { display: block; }
+        input { background: #333; border: 1px solid #444; color: white; width: 100%; padding: 5px; border-radius: 4px; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="overlay" id="overlay"></div>
     <div class="container">
-        <div class="display">
-            <div class="timer-wrapper">
-                <div class="timer-display" id="timerDisplay">25:00</div>
-                <div class="controls">
-                    <button class="btn" id="startBtn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-                    <button class="btn" id="stopBtn" style="display: none;"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button>
-                    <button class="btn" id="skipBtn"><svg viewBox="0 0 24 24"><polyline points="5 4 15 12 5 20 5 4"></polyline><line x1="18" y1="5" x2="18" y2="19"></line></svg></button>
-                    <button class="btn" id="settingsBtn"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg></button>
-                </div>
-            </div>
-            <div class="status-text" id="statusText">Nauka</div>
-            <div class="time-stats">
-                <span id="workMinutesTotal">0</span>m <span id="sessionName">nauki</span> | 
-                <span id="breakMinutesTotal">0</span>m pauzy
+        <div class="timer-wrapper">
+            <div class="timer-display" id="timerDisplay">25:00</div>
+            <div class="controls">
+                <button class="btn" id="startBtn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+                <button class="btn" id="stopBtn" style="display:none"><svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+                <button class="btn" id="settingsBtn"><svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></button>
             </div>
         </div>
+        <div class="status-text" id="statusText">Nauka</div>
+        <div class="stats"><span id="wM">0</span>m pracy | <span id="bM">0</span>m pauzy</div>
     </div>
 
-    <div class="settings" id="settings">
-        <div class="settings-row">
-            <div class="setting-item">
-                <label class="setting-label">Praca</label>
-                <input type="number" class="setting-input" id="workMinutes" value="25">
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">Pauza</label>
-                <input type="number" class="setting-input" id="breakMinutes" value="5">
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">Długa</label>
-                <input type="number" class="setting-input" id="longBreakMinutes" value="15">
-            </div>
-        </div>
-        <div class="settings-row">
-            <div class="setting-item" style="flex: 2;">
-                <label class="setting-label">Nazwa</label>
-                <input type="text" class="setting-input" id="sessionNameInput" value="nauka">
-            </div>
-            <div class="setting-item">
-                <label class="setting-label">LB</label>
-                <button class="toggle-checkbox active" id="longBreakToggle"></button>
-            </div>
-            <button class="btn" id="closeSettingsBtn" style="width: auto; padding: 0 10px; font-size: 10px;">OK</button>
-        </div>
+    <div class="settings" id="settingsBox">
+        <input type="number" id="inW" value="25" placeholder="Praca (min)">
+        <input type="number" id="inB" value="5" placeholder="Przerwa (min)">
+        <button class="btn" id="saveBtn" style="width:100%; border-radius:4px;">Zapisz</button>
     </div>
 
     <script>
-        const el = (id) => document.getElementById(id);
-        const dom = {
-            display: el('timerDisplay'),
-            status: el('statusText'),
-            workTotal: el('workMinutesTotal'),
-            breakTotal: el('breakMinutesTotal'),
-            sessionName: el('sessionName'),
-            startBtn: el('startBtn'),
-            stopBtn: el('stopBtn'),
-            settings: el('settings'),
-            overlay: el('overlay'),
-            longBreakToggle: el('longBreakToggle')
-        };
+        let work = 25, pause = 5, timeLeft = 25 * 60, isRunning = false, isWork = true;
+        let statsW = 0, statsB = 0;
+        const disp = document.getElementById('timerDisplay');
+        const status = document.getElementById('statusText');
 
-        let audioCtx = null;
-        let config = JSON.parse(localStorage.getItem('pomoConfig')) || { work: 25, break: 5, long: 15, lbEnabled: true, name: 'nauka' };
-        let stats = JSON.parse(localStorage.getItem('pomoStatsSec')) || { workSecs: 0, breakSecs: 0 };
-        
-        let timeLeft = config.work * 60, lastTimeLeft = timeLeft, endTime = null;
-        let isRunning = false, isWork = true, sessionsUntilLong = 4, intervalId = null;
-
-        function playBell() {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.8);
-            } catch(e) { console.log("Audio play blocked"); }
+        function update() {
+            const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+            disp.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+            document.getElementById('wM').textContent = Math.floor(statsW / 60);
+            document.getElementById('bM').textContent = Math.floor(statsB / 60);
         }
 
-        function updateUI() {
-            const mins = Math.floor(timeLeft / 60), secs = timeLeft % 60;
-            const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            dom.display.textContent = timeStr;
-            dom.workTotal.textContent = Math.floor(stats.workSecs / 60);
-            dom.breakTotal.textContent = Math.floor(stats.breakSecs / 60);
-            dom.sessionName.textContent = config.name;
-            dom.status.textContent = isWork ? config.name.charAt(0).toUpperCase() + config.name.slice(1) : (sessionsUntilLong === 0 && config.lbEnabled ? "Długa przerwa" : "Przerwa");
-        }
-
-        function tick() {
+        setInterval(() => {
             if (!isRunning) return;
-            const now = Date.now();
-            timeLeft = Math.max(0, Math.round((endTime - now) / 1000));
-            
-            const diff = lastTimeLeft - timeLeft;
-            if (diff > 0) {
-                isWork ? stats.workSecs += diff : stats.breakSecs += diff;
-                localStorage.setItem('pomoStatsSec', JSON.stringify(stats));
-            }
-            lastTimeLeft = timeLeft;
-
+            timeLeft--;
+            isWork ? statsW++ : statsB++;
             if (timeLeft <= 0) {
-                playBell();
-                switchPhase();
-                endTime = Date.now() + (timeLeft * 1000);
+                isWork = !isWork;
+                timeLeft = (isWork ? work : pause) * 60;
+                status.textContent = isWork ? "Nauka" : "Przerwa";
+                new Audio().play(); // Opcjonalny dźwięk
             }
-            updateUI();
-        }
+            update();
+        }, 1000);
 
-        function switchPhase() {
-            if (isWork) {
-                sessionsUntilLong--;
-                timeLeft = (config.lbEnabled && sessionsUntilLong <= 0) ? config.long * 60 : config.break * 60;
-            } else {
-                if (sessionsUntilLong <= 0) sessionsUntilLong = 4;
-                timeLeft = config.work * 60;
-            }
-            isWork = !isWork;
-            lastTimeLeft = timeLeft;
-        }
-
-        function start() {
-            if (isRunning) return;
-            isRunning = true;
-            endTime = Date.now() + (timeLeft * 1000);
-            intervalId = setInterval(tick, 200);
-            dom.startBtn.style.display = 'none';
-            dom.stopBtn.style.display = 'flex';
-        }
-
-        function stop() {
-            isRunning = false;
-            clearInterval(intervalId);
-            dom.startBtn.style.display = 'flex';
-            dom.stopBtn.style.display = 'none';
-        }
-
-        dom.startBtn.onclick = start;
-        dom.stopBtn.onclick = stop;
-        el('skipBtn').onclick = () => { stop(); switchPhase(); updateUI(); start(); };
-        el('settingsBtn').onclick = () => { stop(); dom.settings.classList.add('active'); dom.overlay.classList.add('active'); };
-        
-        el('closeSettingsBtn').onclick = () => {
-            config = {
-                work: parseInt(el('workMinutes').value) || 25,
-                break: parseInt(el('breakMinutes').value) || 5,
-                long: parseInt(el('longBreakMinutes').value) || 15,
-                name: el('sessionNameInput').value || 'nauka',
-                lbEnabled: dom.longBreakToggle.classList.contains('active')
-            };
-            localStorage.setItem('pomoConfig', JSON.stringify(config));
-            isWork = true; timeLeft = lastTimeLeft = config.work * 60; sessionsUntilLong = 4;
-            dom.settings.classList.remove('active'); dom.overlay.classList.remove('active');
-            updateUI();
+        document.getElementById('startBtn').onclick = () => { isRunning = true; document.getElementById('startBtn').style.display='none'; document.getElementById('stopBtn').style.display='flex'; };
+        document.getElementById('stopBtn').onclick = () => { isRunning = false; document.getElementById('startBtn').style.display='flex'; document.getElementById('stopBtn').style.display='none'; };
+        document.getElementById('settingsBtn').onclick = () => document.getElementById('settingsBox').classList.add('active');
+        document.getElementById('saveBtn').onclick = () => {
+            work = parseInt(document.getElementById('inW').value);
+            pause = parseInt(document.getElementById('inB').value);
+            timeLeft = work * 60;
+            document.getElementById('settingsBox').classList.remove('active');
+            update();
         };
-
-        dom.longBreakToggle.onclick = () => dom.longBreakToggle.classList.toggle('active');
-        dom.overlay.onclick = () => el('closeSettingsBtn').click();
-
-        updateUI();
     </script>
 </body>
 </html>
