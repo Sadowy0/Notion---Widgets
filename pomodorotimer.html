@@ -8,19 +8,45 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; text-align: center; }
-        #main-scaler { display: flex; flex-direction: column; align-items: center; width: 350px; transition: transform 0.1s ease-out; padding: 10px; }
+        
+        /* Zmiana szerokości bazy na 300px, aby pasowała do widżetu tygodnia */
+        #main-scaler { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 300px; 
+            transition: transform 0.1s ease-out; 
+            padding: 5px; 
+        }
+
         .container, .display { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .display { gap: 0; }
-        .time-stats { font-size: 16px; font-weight: 700; opacity: 0.5; line-height: 1; order: 1; margin-bottom: -4px; position: relative; z-index: 2; letter-spacing: 0.5px; width: 100%; pointer-events: none; }
-        .timer-wrapper { position: relative; display: flex; align-items: center; justify-content: center; min-width: 280px; order: 2; z-index: 1; }
-        .timer-display { font-size: 96px; font-weight: 800; line-height: 0.9; letter-spacing: -4px; font-variant-numeric: tabular-nums; display: flex; align-items: center; }
+
+        /* Zwiększona czcionka statystyk */
+        .time-stats { font-size: 16px; font-weight: 700; opacity: 0.5; line-height: 1; order: 1; margin-bottom: -5px; position: relative; z-index: 2; letter-spacing: 0.5px; width: 100%; pointer-events: none; }
+        
+        .timer-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; order: 2; z-index: 1; }
+        
+        /* GIGANTYCZNA CZCIONKA: Zwiększona z 96px na 110px i pogrubiona */
+        .timer-display { 
+            font-size: 110px; 
+            font-weight: 900; 
+            line-height: 0.85; 
+            letter-spacing: -5px; 
+            font-variant-numeric: tabular-nums; 
+            display: flex; 
+            align-items: center; 
+        }
+
         .t-btn { cursor: pointer; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
         .t-btn:hover { opacity: 0.6; }
-        .colon-box { display: flex; flex-direction: column; justify-content: center; gap: 12px; height: 100%; padding: 0 6px; margin-top: 4px; }
-        .dot { width: 10px; height: 10px; background: white; border-radius: 50%; pointer-events: none; }
-        .status-text { font-size: 14px; font-weight: 800; opacity: 0.8; letter-spacing: 1px; order: 3; margin-top: 4px; line-height: 1; position: relative; z-index: 2; pointer-events: none; }
-        @media (max-width: 500px) { .timer-display { font-size: 88px; } }
-        .btn { border: none; border-radius: 6px; cursor: pointer; background: rgba(255, 255, 255, 0.1); color: #ffffff; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .colon-box { display: flex; flex-direction: column; justify-content: center; gap: 12px; height: 100%; padding: 0 4px; margin-top: 5px; }
+        .dot { width: 12px; height: 12px; background: white; border-radius: 50%; pointer-events: none; }
+
+        /* Status sesji */
+        .status-text { font-size: 18px; font-weight: 900; opacity: 0.9; letter-spacing: 1.5px; order: 3; margin-top: 2px; line-height: 1; position: relative; z-index: 2; pointer-events: none; text-transform: uppercase; }
+
+        /* Ustawienia */
         .settings { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 10px; padding: 15px; background: #1f1f1f; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 2000; width: 220px; }
         .settings.active { display: flex; }
         .settings-row { display: flex; gap: 8px; justify-content: center; }
@@ -32,10 +58,10 @@
         .toggle-btn::before { content: ''; position: absolute; width: 14px; height: 14px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.2s; }
         .toggle-btn.active::before { left: 19px; }
         .settings-actions { display: flex; gap: 6px; margin-top: 5px; }
-        .action-btn { flex: 1; height: 32px; font-size: 10px; font-weight: 800; gap: 4px; }
+        .btn { border: none; border-radius: 6px; cursor: pointer; background: rgba(255, 255, 255, 0.1); color: white; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+        .action-btn { flex: 1; height: 32px; font-size: 10px; font-weight: 800; }
         .btn-save { background: #007AFF; }
         .btn-reset { background: rgba(255, 69, 58, 0.2); color: #ff453a; }
-        .btn-reset svg { width: 12px; height: 12px; stroke: #ff453a; stroke-width: 2.5; fill: none; }
         .overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; z-index:1500; background: rgba(0,0,0,0.7); }
         .overlay.active { display: block; }
     </style>
@@ -66,7 +92,7 @@
         </div>
         <div class="settings-actions">
             <button class="btn action-btn btn-save" id="save">ZAPISZ</button>
-            <button class="btn action-btn btn-reset" id="reset"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> RESET</button>
+            <button class="btn action-btn btn-reset" id="reset">RESET</button>
         </div>
     </div>
     <script>
@@ -84,7 +110,11 @@
             document.title=`${ms}:${ss} - ${w?c.name:'Przerwa'}`; fit();
         };
 
-        const fit=()=>{ const sc=Math.min(window.innerWidth/350, window.innerHeight/250, 1); e('main-scaler').style.transform=`scale(${sc})`; };
+        const fit=()=>{ 
+            // Zmieniono dzielnik na 300, aby skala była identyczna jak w widżecie tygodnia
+            const sc = Math.min(window.innerWidth / 300, window.innerHeight / 150, 1); 
+            e('main-scaler').style.transform = `scale(${sc})`; 
+        };
         
         const phase=()=>{ 
             if(w){ sl--; t=(c.lbEnabled&&sl<=0)?c.long*60:c.break*60; if(sl<=0)sl=4; } 
@@ -100,17 +130,11 @@
 
         const start=()=>{ r=true; et=Date.now()+(t*1000); iv=setInterval(tick,200); };
         const stop=()=>{ r=false; clearInterval(iv); };
-        
-        const skip=()=>{ 
-            const was=r; if(was) stop(); 
-            phase(); update(); 
-            if(was) start(); 
-        };
+        const skip=()=>{ const was=r; if(was) stop(); phase(); update(); if(was) start(); };
 
         e('m1').onclick=()=>(r?stop():start());
         e('colon').onclick=()=>{ e('settings').classList.add('active'); e('overlay').classList.add('active'); };
         e('s2').onclick=skip;
-
         e('overlay').onclick=()=>{ e('settings').classList.remove('active'); e('overlay').classList.remove('active'); };
         e('lbToggle').onclick=()=>e('lbToggle').classList.toggle('active');
         e('save').onclick=()=>{
@@ -119,8 +143,7 @@
             stop(); t=c.work*60; w=true; sl=4; e('overlay').click(); update();
         };
         e('reset').onclick=()=>{ if(confirm("Zresetować statystyki?")){ s={workSecs:0,breakSecs:0}; localStorage.setItem('pomoStats',JSON.stringify(s)); update(); e('overlay').click(); } };
-        window.onresize=fit; update();
+        window.onresize = fit; update();
     </script>
 </body>
 </html>
-
