@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pomodoro Timer</title>
     <style>
-        /* TWOJE ORYGINALNE STYLE - NIEZMIENIONE */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { height: 100%; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #191919;
@@ -17,83 +24,282 @@
             color: #ffffff;
             padding: 20px;
         }
-        .container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
-        .display { display: flex; flex-direction: column; align-items: center; gap: 0; position: relative; }
-        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; order: 3; line-height: 1.2; }
-        .timer-wrapper {
-            position: relative; display: flex; align-items: center; justify-content: center;
-            min-width: 240px; min-height: 80px; order: 1;
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
         }
+
+        .display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            position: relative;
+        }
+
+        .time-stats {
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0.6;
+            order: 3;
+            line-height: 1.2;
+        }
+
+        .timer-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 240px;
+            min-height: 80px;
+            order: 1;
+        }
+
         .timer-display {
-            font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -2px;
-            font-variant-numeric: tabular-nums; min-width: 240px; opacity: 1;
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -2px;
+            font-variant-numeric: tabular-nums;
+            min-width: 240px;
+            opacity: 1;
             transition: opacity 0.3s ease;
         }
-        .timer-wrapper:hover .timer-display { opacity: 0; pointer-events: none; }
+
+        .timer-wrapper:hover .timer-display {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .controls {
-            display: flex; flex-direction: row; gap: 8px; opacity: 0; transition: opacity 0.3s ease;
-            pointer-events: none; position: absolute; left: 50%; top: 50%;
-            transform: translate(-50%, -50%); z-index: 10;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
         }
-        .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
+
+        .timer-wrapper:hover .controls {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .btn {
-            padding: 8px; border: none; border-radius: 4px; cursor: pointer;
-            background: rgba(255, 255, 255, 0.1); color: #ffffff;
-            transition: all 0.2s ease; display: flex; align-items: center;
-            justify-content: center; width: 32px; height: 32px;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
         }
-        .btn:hover { background: rgba(255, 255, 255, 0.2); }
-        .btn:active { transform: scale(0.95); }
-        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; order: 2; line-height: 1; }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .status-text {
+            font-size: 13px;
+            font-weight: 500;
+            opacity: 0.7;
+            order: 2;
+            line-height: 1;
+        }
+
         .settings {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            flex-direction: column; gap: 10px; padding: 12px; background: rgba(25, 25, 25, 0.95);
-            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 1000;
-            max-height: 80vh; overflow-y: auto;
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-        .settings.active { display: flex; }
-        .settings-row { display: flex; flex-direction: row; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-        .setting-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .setting-label { font-size: 10px; font-weight: 600; opacity: 0.7; text-transform: uppercase; }
-        .setting-input { width: 40px; padding: 4px 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 3px; font-size: 11px; font-weight: 500; text-align: center; }
-        .setting-input-text { width: 70px; padding: 4px 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; border-radius: 3px; font-size: 11px; font-weight: 500; text-align: center; }
-        .toggle-checkbox { width: 24px; height: 14px; background: rgba(255, 255, 255, 0.2); border: none; border-radius: 7px; cursor: pointer; position: relative; transition: all 0.2s ease; }
-        .toggle-checkbox.active { background: rgba(76, 175, 80, 0.6); }
-        .toggle-checkbox::after { content: ''; position: absolute; width: 100%; height: 100%; top: 0; left: 0; } /* Uproszczony toggle */
-        .toggle-checkbox::before { content: ''; position: absolute; width: 10px; height: 10px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
-        .toggle-checkbox.active::before { left: 12px; }
-        .btn-small { padding: 4px 8px; font-size: 10px; background: rgba(255, 255, 255, 0.1); height: 28px; width: auto; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; }
-        .overlay.active { display: block; }
+
+        .settings.active {
+            display: flex;
+        }
+
+        .settings-row {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .setting-label {
+            font-size: 10px;
+            font-weight: 600;
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+
+        .setting-input {
+            width: 40px;
+            padding: 4px 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .setting-input-text {
+            width: 70px;
+            padding: 4px 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .setting-input:focus,
+        .setting-input-text:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .toggle-checkbox {
+            width: 24px;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-checkbox.active {
+            background: rgba(76, 175, 80, 0.6);
+        }
+
+        .toggle-checkbox::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-checkbox.active::after {
+            left: 12px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            height: 28px;
+            width: auto;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
+    
     <div class="container">
         <div class="display">
             <div class="timer-wrapper">
                 <div class="timer-display" id="timerDisplay">25:00</div>
+                
                 <div class="controls">
                     <button class="btn" id="startBtn" title="Start/Wznów">
-                        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
                     </button>
                     <button class="btn" id="stopBtn" title="Pauza" style="display: none;">
-                        <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        <svg viewBox="0 0 24 24">
+                            <rect x="6" y="4" width="4" height="16"></rect>
+                            <rect x="14" y="4" width="4" height="16"></rect>
+                        </svg>
                     </button>
                     <button class="btn" id="skipBtn" title="Pomiń">
-                        <svg viewBox="0 0 24 24"><polyline points="5 4 15 12 5 20 5 4"></polyline><line x1="18" y1="5" x2="18" y2="19"></line></svg>
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="5 4 15 12 5 20 5 4"></polyline>
+                            <line x1="18" y1="5" x2="18" y2="19"></line>
+                        </svg>
                     </button>
                     <button class="btn" id="settingsBtn" title="Ustawienia">
-                        <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="18" cy="12" r="1"></circle></svg>
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="6" cy="12" r="1"></circle>
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="18" cy="12" r="1"></circle>
+                        </svg>
                     </button>
                 </div>
             </div>
+            
             <div class="status-text" id="statusText">Nauka</div>
-            <div class="time-stats">
-                <span id="workMinutesTotal">0</span>m <span id="sessionName">nauki</span> | 
-                <span id="breakMinutesTotal">0</span>m pauzy
-            </div>
+            <div class="time-stats"><span id="workMinutesTotal">0</span>m <span id="sessionName">nauki</span> | <span id="breakMinutesTotal">0</span>m pauzy</div>
         </div>
     </div>
 
@@ -112,176 +318,245 @@
                 <input type="number" class="setting-input" id="longBreakMinutes" min="1" max="60" value="15">
             </div>
             <div class="setting-item">
-                <label class="setting-label" style="opacity:0; font-size:1px">LB</label>
+                <label class="setting-label" style="opacity: 0; font-size: 1px;">Toggle</label>
                 <button class="toggle-checkbox active" id="longBreakToggle"></button>
             </div>
         </div>
         <div class="settings-row">
             <div class="setting-item">
                 <label class="setting-label">Nazwa sesji</label>
-                <input type="text" class="setting-input-text" id="sessionNameInput" value="nauka">
+                <input type="text" class="setting-input-text" id="sessionNameInput" max="20" value="nauka">
             </div>
             <button class="btn btn-small" id="closeSettingsBtn">OK</button>
         </div>
     </div>
 
     <script>
-        // --- LOGIKA "POD MASKĄ" ---
-        let audioCtx = null;
-        function playBell() {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBellSound() {
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
             osc.frequency.setValueAtTime(800, now);
             osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+            
             gain.gain.setValueAtTime(0.3, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-            osc.start(now); osc.stop(now + 0.6);
+            
+            osc.start(now);
+            osc.stop(now + 0.6);
         }
 
-        // Stan aplikacji (ładowany z LocalStorage)
-        let config = JSON.parse(localStorage.getItem('pomoConfig')) || {
-            work: 25, break: 5, long: 15, lbEnabled: true, name: 'nauka'
-        };
-        let stats = JSON.parse(localStorage.getItem('pomoStats')) || {
-            workMins: 0, breakMins: 0
-        };
-
-        let timeLeft = config.work * 60;
+        let workTime = 25;
+        let breakTime = 5;
+        let longBreakTime = 15;
+        let longBreakEnabled = true;
+        let sessionName = 'nauka';
         let isRunning = false;
+        let timeLeft = workTime * 60;
+        let totalWorkMinutes = 0;
+        let totalBreakMinutes = 0;
+        let currentSessionSeconds = 0;
         let isWorkSession = true;
-        let sessionsCount = 0;
+        let sessionsUntilLongBreak = 4;
         let intervalId = null;
-        let endTime = null;
 
         const timerDisplay = document.getElementById('timerDisplay');
         const statusText = document.getElementById('statusText');
-        const sessionNameSpan = document.getElementById('sessionName');
-        const workTotalSpan = document.getElementById('workMinutesTotal');
-        const breakTotalSpan = document.getElementById('breakMinutesTotal');
+        const sessionNameDisplay = document.getElementById('sessionName');
+        const workMinutesTotalDisplay = document.getElementById('workMinutesTotal');
+        const breakMinutesTotalDisplay = document.getElementById('breakMinutesTotal');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settings');
+        const overlay = document.getElementById('overlay');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const workMinutesInput = document.getElementById('workMinutes');
+        const breakMinutesInput = document.getElementById('breakMinutes');
+        const longBreakMinutesInput = document.getElementById('longBreakMinutes');
+        const longBreakToggle = document.getElementById('longBreakToggle');
+        const sessionNameInput = document.getElementById('sessionNameInput');
 
-        function updateUI() {
-            const mins = Math.floor(timeLeft / 60);
-            const secs = timeLeft % 60;
-            const displayStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-            timerDisplay.textContent = displayStr;
-            document.title = `${displayStr} - ${isWorkSession ? config.name : 'Przerwa'}`;
-            
-            statusText.textContent = isWorkSession ? 
-                config.name.charAt(0).toUpperCase() + config.name.slice(1) : 
-                (sessionsCount % 4 === 0 && config.lbEnabled ? "Długa przerwa" : "Przerwa");
-            
-            sessionNameSpan.textContent = config.name;
-            workTotalSpan.textContent = stats.workMins;
-            breakTotalSpan.textContent = stats.breakMins;
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+
+        function updateStats() {
+            workMinutesTotalDisplay.textContent = totalWorkMinutes;
+            breakMinutesTotalDisplay.textContent = totalBreakMinutes;
+            sessionNameDisplay.textContent = sessionName;
+        }
+
+        function updateStatusText() {
+            if (isWorkSession) {
+                statusText.textContent = sessionName.charAt(0).toUpperCase() + sessionName.slice(1);
+            } else {
+                if (sessionsUntilLongBreak === 0) {
+                    statusText.textContent = 'Długa przerwa';
+                } else {
+                    statusText.textContent = 'Przerwa';
+                }
+            }
         }
 
         function tick() {
-            const now = Date.now();
-            timeLeft = Math.max(0, Math.round((endTime - now) / 1000));
+            timeLeft--;
+            currentSessionSeconds++;
             
-            if (timeLeft <= 0) {
-                finishSession();
-            }
-            updateUI();
-        }
-
-        function finishSession() {
-            stopTimer();
-            playBell();
+            // Aktualizuj licznik na bieżąco
             if (isWorkSession) {
-                stats.workMins += config.work;
-                sessionsCount++;
+                totalWorkMinutes += Math.floor(currentSessionSeconds / 60);
             } else {
-                const bTime = (sessionsCount % 4 === 0 && config.lbEnabled) ? config.long : config.break;
-                stats.breakMins += bTime;
+                totalBreakMinutes += Math.floor(currentSessionSeconds / 60);
             }
-            localStorage.setItem('pomoStats', JSON.stringify(stats));
-            switchPhase();
-            startTimer();
+            
+            currentSessionSeconds = currentSessionSeconds % 60;
+            
+            updateDisplay();
+            updateStats();
+
+            if (timeLeft <= 0) {
+                playBellSound();
+                switchPhase();
+                startTimer();
+            }
         }
 
         function switchPhase() {
-            isWorkSession = !isWorkSession;
             if (isWorkSession) {
-                timeLeft = config.work * 60;
-            } else {
-                if (config.lbEnabled && sessionsCount % 4 === 0) {
-                    timeLeft = config.long * 60;
+                sessionsUntilLongBreak--;
+                
+                if (longBreakEnabled && sessionsUntilLongBreak === 0) {
+                    timeLeft = longBreakTime * 60;
                 } else {
-                    timeLeft = config.break * 60;
+                    timeLeft = breakTime * 60;
                 }
+            } else {
+                timeLeft = workTime * 60;
+                sessionsUntilLongBreak = Math.max(0, sessionsUntilLongBreak - 1);
             }
-            updateUI();
+            
+            isWorkSession = !isWorkSession;
+            currentSessionSeconds = 0;
+            updateDisplay();
+            updateStatusText();
+            updateStats();
         }
 
         function startTimer() {
             if (!isRunning) {
-                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 isRunning = true;
-                endTime = Date.now() + (timeLeft * 1000);
-                intervalId = setInterval(tick, 200);
-                document.getElementById('startBtn').style.display = 'none';
-                document.getElementById('stopBtn').style.display = 'flex';
+                intervalId = setInterval(tick, 1000);
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'flex';
             }
         }
 
         function stopTimer() {
-            isRunning = false;
-            clearInterval(intervalId);
-            document.getElementById('startBtn').style.display = 'flex';
-            document.getElementById('stopBtn').style.display = 'none';
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(intervalId);
+                startBtn.style.display = 'flex';
+                stopBtn.style.display = 'none';
+            }
         }
 
-        // Eventy
-        document.getElementById('startBtn').onclick = startTimer;
-        document.getElementById('stopBtn').onclick = stopTimer;
-        document.getElementById('skipBtn').onclick = () => {
+        function skipPhase() {
             stopTimer();
+            playBellSound();
             switchPhase();
-        };
+            startTimer();
+        }
 
-        // Ustawienia
-        const settings = document.getElementById('settings');
-        const overlay = document.getElementById('overlay');
-        
-        document.getElementById('settingsBtn').onclick = () => {
-            settings.classList.add('active');
+        function openSettings() {
+            settingsPanel.classList.add('active');
             overlay.classList.add('active');
-        };
-
-        document.getElementById('closeSettingsBtn').onclick = () => {
-            config.work = parseInt(document.getElementById('workMinutes').value) || 25;
-            config.break = parseInt(document.getElementById('breakMinutes').value) || 5;
-            config.long = parseInt(document.getElementById('longBreakMinutes').value) || 15;
-            config.name = document.getElementById('sessionNameInput').value || 'nauka';
-            config.lbEnabled = document.getElementById('longBreakToggle').classList.contains('active');
-            
-            localStorage.setItem('pomoConfig', JSON.stringify(config));
-            
-            // Resetuj obecny timer do nowych ustawień
             stopTimer();
-            isWorkSession = true;
-            timeLeft = config.work * 60;
-            settings.classList.remove('active');
+        }
+
+        function closeSettings() {
+            settingsPanel.classList.remove('active');
             overlay.classList.remove('active');
-            updateUI();
-        };
+            workTime = parseInt(workMinutesInput.value);
+            breakTime = parseInt(breakMinutesInput.value);
+            longBreakTime = parseInt(longBreakMinutesInput.value);
+            longBreakEnabled = longBreakToggle.classList.contains('active');
+            sessionName = sessionNameInput.value || 'nauka';
+            
+            if (isWorkSession) {
+                timeLeft = workTime * 60;
+            } else {
+                if (longBreakEnabled && sessionsUntilLongBreak === 0) {
+                    timeLeft = longBreakTime * 60;
+                } else {
+                    timeLeft = breakTime * 60;
+                }
+            }
+            updateDisplay();
+            updateStatusText();
+            updateStats();
+        }
 
-        document.getElementById('longBreakToggle').onclick = function() {
-            this.classList.toggle('active');
-        };
+        startBtn.addEventListener('click', startTimer);
+        stopBtn.addEventListener('click', stopTimer);
+        skipBtn.addEventListener('click', skipPhase);
+        settingsBtn.addEventListener('click', openSettings);
+        closeSettingsBtn.addEventListener('click', closeSettings);
+        overlay.addEventListener('click', closeSettings);
 
-        // Inicjalizacja pól w ustawieniach
-        document.getElementById('workMinutes').value = config.work;
-        document.getElementById('breakMinutes').value = config.break;
-        document.getElementById('longBreakMinutes').value = config.long;
-        document.getElementById('sessionNameInput').value = config.name;
-        if(!config.lbEnabled) document.getElementById('longBreakToggle').classList.remove('active');
+        longBreakToggle.addEventListener('click', () => {
+            longBreakToggle.classList.toggle('active');
+        });
 
-        updateUI();
+        workMinutesInput.addEventListener('change', (e) => {
+            const val = parseInt(e.target.value);
+            if (val >= 1 && val <= 60) {
+                workMinutesInput.value = val;
+            } else {
+                workMinutesInput.value = workTime;
+            }
+        });
+
+        breakMinutesInput.addEventListener('change', (e) => {
+            const val = parseInt(e.target.value);
+            if (val >= 1 && val <= 30) {
+                breakMinutesInput.value = val;
+            } else {
+                breakMinutesInput.value = breakTime;
+            }
+        });
+
+        longBreakMinutesInput.addEventListener('change', (e) => {
+            const val = parseInt(e.target.value);
+            if (val >= 1 && val <= 60) {
+                longBreakMinutesInput.value = val;
+            } else {
+                longBreakMinutesInput.value = longBreakTime;
+            }
+        });
+
+        sessionNameInput.addEventListener('change', (e) => {
+            if (e.target.value.length > 20) {
+                e.target.value = e.target.value.substring(0, 20);
+            }
+        });
+
+        updateDisplay();
+        updateStats();
+        updateStatusText();
     </script>
 </body>
 </html>
