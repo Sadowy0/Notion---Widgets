@@ -5,17 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tydzień na studiach</title>
   <style>
-    html, body { height: 100%; }
+    html, body { height: 100%; margin: 0; padding: 0; }
     body{
-      margin: 0;
-      background: transparent;     /* żeby zlewało się z tłem Notion */
+      background: linear-gradient(135deg, rgba(20,20,25,.75) 0%, rgba(30,30,35,.75) 100%);
       display: grid;
-      place-items: center;         /* środek pion/poziom */
+      place-items: center;
       text-align: center;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: rgba(0,0,0,.92); /* pod Notion dark */
+      color: #fff;
     }
-    .date { font-size: 14px; opacity: .75; margin-bottom: 8px; }
+    .date { font-size: 14px; opacity: .8; margin-bottom: 8px; }
     .week { font-size: 36px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
     .parity { font-size: 16px; font-weight: 600; opacity: .95; }
   </style>
@@ -28,11 +27,10 @@
   </div>
 
   <script>
-    // ISO week (nearest Thursday)
     function isoWeek(date) {
       const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const day = d.getUTCDay() || 7;          // pon=1 ... niedz=7
-      d.setUTCDate(d.getUTCDate() + 4 - day);  // czwartek ISO
+      const day = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - day);
       const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
       return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     }
@@ -45,10 +43,9 @@
     const dayNameCap = dayName.charAt(0).toUpperCase() + dayName.slice(1);
     const dateFmt = today.toLocaleDateString("pl-PL", { year:"numeric", month:"2-digit", day:"2-digit" });
 
-    document.getElementById("dateText").textContent = `${dayNameCap}, ${dateFmt}`;
-    document.getElementById("weekText").textContent = `Tydzień ${week}`;
+    document.getElementById("dateText").textContent = \`\${dayNameCap}, \${dateFmt}\`;
+    document.getElementById("weekText").textContent = \`Tydzień \${week}\`;
     document.getElementById("parityText").textContent = even ? "parzysty" : "nieparzysty";
-  </script>
+  <\/script>
 </body>
 </html>
-
