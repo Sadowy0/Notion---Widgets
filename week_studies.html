@@ -5,16 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tydzień na studiach</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #191919;
@@ -23,31 +15,15 @@
             text-align: center;
             color: #ffffff;
         }
-
-        .widget {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .date-text {
-            font-size: 14px;
-            font-weight: 500;
-            opacity: 0.75;
-        }
-
+        .widget { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .date-text { font-size: 14px; font-weight: 500; opacity: 0.6; }
         .week-number {
-            font-size: 48px;
-            font-weight: 700;
-            line-height: 1;
-            letter-spacing: -1px;
+            font-size: 48px; font-weight: 700; line-height: 1; letter-spacing: -1px;
+            margin: 4px 0;
         }
-
         .parity-value {
-            font-size: 16px;
-            font-weight: 600;
-            opacity: 0.9;
+            font-size: 18px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -59,25 +35,32 @@
     </div>
 
     <script>
-        function isoWeek(date) {
-            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-            const day = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - day);
-            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-        }
+        const getISOWeek = (d) => {
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+            return Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
+        };
 
-        const today = new Date();
-        const week = isoWeek(today);
-        const even = week % 2 === 0;
+        const updateWidget = () => {
+            const now = new Date();
+            const week = getISOWeek(now);
+            const isEven = week % 2 === 0;
+            
+            const elDate = document.getElementById("dateText");
+            const elWeek = document.getElementById("weekNumber");
+            const elParity = document.getElementById("parityText");
 
-        const dayName = today.toLocaleDateString("pl-PL", { weekday: "long" });
-        const dayNameCap = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-        const dateFmt = today.toLocaleDateString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit" });
+            const dayName = now.toLocaleDateString("pl-PL", { weekday: "long" });
+            const dateStr = now.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-        document.getElementById("dateText").textContent = dayNameCap + ", " + dateFmt;
-        document.getElementById("weekNumber").textContent = "Tydzień " + week;
-        document.getElementById("parityText").textContent = even ? "parzysty" : "nieparzysty";
+            elDate.textContent = `${dayName.charAt(0).toUpperCase() + dayName.slice(1)}, ${dateStr}`;
+            elWeek.textContent = `Tydzień ${week}`;
+            
+            elParity.textContent = isEven ? "parzysty" : "nieparzysty";
+            elParity.style.color = isEven ? "#5fb6ff" : "#ff5f5f"; // Niebieski : Czerwony
+        };
+
+        updateWidget();
     </script>
 </body>
 </html>
