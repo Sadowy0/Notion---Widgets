@@ -3,83 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
-        body { font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: flex-start; padding-top: 10px; }
-        
-        #scaler { width: 300px; text-align: center; transform-origin: top center; transition: transform 0.1s; }
-        
-        .timer-wrapper { position: relative; height: 90px; display: flex; align-items: center; justify-content: center; }
-        .timer-display { font-size: 64px; font-weight: 700; letter-spacing: -2px; font-variant-numeric: tabular-nums; }
-        
-        .controls { position: absolute; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; gap: 8px; background: rgba(25,25,25,0.9); padding: 10px; border-radius: 10px; }
-        .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
-        .timer-wrapper:hover .timer-display { opacity: 0.1; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center; text-align: center;
+        }
 
-        .btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+        #main-scaler {
+            display: flex; flex-direction: column; align-items: center;
+            width: 320px; transition: transform 0.1s ease-out; padding: 10px;
+        }
 
-        .status-text { font-size: 14px; font-weight: 600; opacity: 0.8; margin-top: -5px; }
-        .time-stats { font-size: 12px; opacity: 0.5; margin-top: 5px; }
+        .container { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+        .display { display: flex; flex-direction: column; align-items: center; gap: 0; position: relative; width: 100%; }
+        
+        .timer-wrapper {
+            position: relative; display: flex; align-items: center; justify-content: center;
+            min-width: 240px; min-height: 80px; order: 1;
+        }
+        .timer-display {
+            font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -2px;
+            font-variant-numeric: tabular-nums; opacity: 1; transition: opacity 0.3s ease;
+        }
+        
+        /* DESKTOP HOVER */
+        .controls {
+            display: flex; flex-direction: row; gap: 8px; opacity: 0; transition: opacity 0.3s ease;
+            pointer-events: none; position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -50%); z-index: 10;
+        }
+        
+        @media (min-width: 501px) {
+            .timer-wrapper:hover .timer-display { opacity: 0; }
+            .timer-wrapper:hover .controls { opacity: 1; pointer-events: auto; }
+        }
 
-        /* MODAL USTAWIEŃ */
-        .settings { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #191919; z-index: 100; flex-direction: column; padding: 20px; gap: 10px; }
+        /* MOBILNY UKŁAD (Przyciski pod spodem) */
+        @media (max-width: 500px) {
+            .controls {
+                position: relative; opacity: 1; pointer-events: auto;
+                left: auto; top: auto; transform: none; margin-top: 15px; order: 4;
+            }
+            .timer-display { opacity: 1 !important; }
+        }
+
+        .btn {
+            padding: 8px; border: none; border-radius: 4px; cursor: pointer;
+            background: rgba(255, 255, 255, 0.1); color: #ffffff;
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px;
+        }
+        .btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
+        
+        .status-text { font-size: 13px; font-weight: 500; opacity: 0.7; order: 2; line-height: 1; margin: 5px 0; }
+        .time-stats { font-size: 12px; font-weight: 500; opacity: 0.6; order: 3; line-height: 1.2; }
+        
+        /* Ustawienia */
+        .settings {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            flex-direction: column; gap: 12px; padding: 15px; background: rgba(25, 25, 25, 0.98);
+            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 1000; width: 280px;
+        }
         .settings.active { display: flex; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        input { background: #222; border: 1px solid #333; color: white; padding: 8px; border-radius: 5px; width: 60px; text-align: center; }
-        .save-btn { background: #5fb6ff; color: black; font-weight: bold; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        .settings-row { display: flex; gap: 10px; justify-content: center; align-items: flex-end; }
+        .setting-item { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+        .setting-label { font-size: 9px; font-weight: 700; opacity: 0.6; text-transform: uppercase; }
+        
+        input { background: #222; border: 1px solid #333; color: white; padding: 5px; border-radius: 4px; width: 45px; text-align: center; font-size: 11px; }
+        
+        .toggle-btn {
+            width: 40px; height: 20px; background: #444; border-radius: 10px; position: relative; cursor: pointer; border: none;
+        }
+        .toggle-btn.active { background: #5fb6ff; }
+        .toggle-btn::before { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.2s; }
+        .toggle-btn.active::before { left: 22px; }
+
+        .overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; z-index:999; background: rgba(0,0,0,0.5); }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
-    <div id="scaler">
-        <div class="timer-wrapper">
-            <div class="timer-display" id="timerDisplay">25:00</div>
-            <div class="controls">
-                <button class="btn" onclick="toggle()"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-                <button class="btn" onclick="reset()"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button>
-                <button class="btn" onclick="openSettings()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+    <div class="overlay" id="overlay"></div>
+    <div id="main-scaler">
+        <div class="container">
+            <div class="display">
+                <div class="timer-wrapper">
+                    <div class="timer-display" id="timerDisplay">25:00</div>
+                    <div class="controls" id="controls">
+                        <button class="btn" id="startBtn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+                        <button class="btn" id="stopBtn" style="display: none;"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg></button>
+                        <button class="btn" id="skipBtn"><svg viewBox="0 0 24 24"><polyline points="5 4 15 12 5 20 5 4"></polyline><line x1="18" y1="5" x2="18" y2="19"></line></svg></button>
+                        <button class="btn" id="settingsBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+                    </div>
+                </div>
+                <div class="status-text" id="statusText">NAUKA</div>
+                <div class="time-stats">
+                    <span id="workMinutesTotal">0</span>m <span id="sessionName">nauki</span> | 
+                    <span id="breakMinutesTotal">0</span>m pauzy
+                </div>
             </div>
-        </div>
-        <div class="status-text" id="statusText">Nauka</div>
-        <div class="time-stats">
-            <span id="workM">0</span>m nauki | <span id="breakM">0</span>m pauzy
         </div>
     </div>
 
-    <div class="settings" id="settingsMenu">
-        <h3 style="font-size: 14px; margin-bottom: 10px;">Ustawienia</h3>
-        <div class="setting-row"><label>Praca (min)</label><input type="number" id="inW" value="25"></div>
-        <div class="setting-row"><label>Pauza (min)</label><input type="number" id="inB" value="5"></div>
-        <button class="save-btn" onclick="saveSettings()">Zapisz i zamknij</button>
+    <div class="settings" id="settings">
+        <div class="settings-row">
+            <div class="setting-item"><label class="setting-label">Praca</label><input type="number" id="workIn" value="25"></div>
+            <div class="setting-item"><label class="setting-label">Pauza</label><input type="number" id="breakIn" value="5"></div>
+            <div class="setting-item"><label class="setting-label">Długa</label><input type="number" id="longIn" value="15"></div>
+            <div class="setting-item">
+                <label class="setting-label">LB</label>
+                <button class="toggle-btn active" id="lbToggle"></button>
+            </div>
+        </div>
+        <button class="btn" style="width:100%; margin-top:10px; font-size:10px;" id="saveSettings">ZAPISZ</button>
     </div>
 
     <script>
-        let timeLeft = 25 * 60, isRunning = false, interval = null, workM = 0, breakM = 0;
+        const el = (id) => document.getElementById(id);
+        let config = JSON.parse(localStorage.getItem('pomoConfig')) || { work: 25, break: 5, long: 15, name: 'nauka', lbEnabled: true };
+        let stats = JSON.parse(localStorage.getItem('pomoStats')) || { workSecs: 0, breakSecs: 0 };
+        let timeLeft = config.work * 60, isRunning = false, isWork = true, sessionsUntilLong = 4, intervalId = null, endTime = null;
+
         function updateUI() {
             const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            document.getElementById('timerDisplay').textContent = `${m}:${String(s).padStart(2, '0')}`;
-            document.getElementById('workM').textContent = Math.floor(workM / 60);
-            document.getElementById('breakM').textContent = Math.floor(breakM / 60);
+            const timeStr = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            el('timerDisplay').textContent = timeStr;
+            el('workMinutesTotal').textContent = Math.floor(stats.workSecs / 60);
+            el('breakMinutesTotal').textContent = Math.floor(stats.breakSecs / 60);
+            el('statusText').textContent = isWork ? config.name.toUpperCase() : (sessionsUntilLong === 0 && config.lbEnabled ? "DŁUGA PRZERWA" : "PRZERWA");
+            document.title = `${timeStr} - ${isWork ? config.name : 'Przerwa'}`;
             fit();
         }
-        function toggle() {
-            isRunning = !isRunning;
-            if (isRunning) { interval = setInterval(() => { if (timeLeft > 0) { timeLeft--; workM++; updateUI(); } }, 1000); }
-            else { clearInterval(interval); }
+
+        function fit() {
+            const scale = Math.min(window.innerWidth / 320, window.innerHeight / 220, 1);
+            el('main-scaler').style.transform = `scale(${scale})`;
         }
-        function reset() { clearInterval(interval); isRunning = false; timeLeft = 25 * 60; updateUI(); }
-        function openSettings() { document.getElementById('settingsMenu').classList.add('active'); }
-        function saveSettings() {
-            const w = parseInt(document.getElementById('inW').value);
-            timeLeft = w * 60;
-            document.getElementById('settingsMenu').classList.remove('active');
+
+        function switchPhase() {
+            if (isWork) {
+                sessionsUntilLong--;
+                if (config.lbEnabled && sessionsUntilLong <= 0) {
+                    timeLeft = config.long * 60;
+                } else {
+                    timeLeft = config.break * 60;
+                    if (sessionsUntilLong <= 0) sessionsUntilLong = 4;
+                }
+            } else {
+                if (sessionsUntilLong <= 0) sessionsUntilLong = 4;
+                timeLeft = config.work * 60;
+            }
+            isWork = !isWork;
+        }
+
+        function tick() {
+            if (!isRunning) return;
+            const now = Date.now();
+            const oldTime = timeLeft;
+            timeLeft = Math.max(0, Math.round((endTime - now) / 1000));
+            
+            let diff = oldTime - timeLeft;
+            if (diff > 0) {
+                isWork ? stats.workSecs += diff : stats.breakSecs += diff;
+                localStorage.setItem('pomoStats', JSON.stringify(stats));
+            }
+
+            if (timeLeft <= 0) {
+                switchPhase();
+                endTime = Date.now() + (timeLeft * 1000);
+            }
             updateUI();
         }
-        function fit() {
-            const scale = Math.min(window.innerWidth / 300, 1);
-            document.getElementById('scaler').style.transform = `scale(${scale})`;
+
+        function start() {
+            isRunning = true;
+            endTime = Date.now() + (timeLeft * 1000);
+            intervalId = setInterval(tick, 200);
+            el('startBtn').style.display = 'none'; el('stopBtn').style.display = 'flex';
         }
+
+        function stop() {
+            isRunning = false; clearInterval(intervalId);
+            el('startBtn').style.display = 'flex'; el('stopBtn').style.display = 'none';
+        }
+
+        el('startBtn').onclick = start;
+        el('stopBtn').onclick = stop;
+        el('skipBtn').onclick = () => { 
+            const wasRunning = isRunning; stop(); switchPhase(); updateUI(); if (wasRunning) start(); 
+        };
+
+        el('settingsBtn').onclick = () => { el('settings').classList.add('active'); el('overlay').classList.add('active'); };
+        el('overlay').onclick = () => { el('settings').classList.remove('active'); el('overlay').classList.remove('active'); };
+        
+        el('lbToggle').onclick = () => el('lbToggle').classList.toggle('active');
+
+        el('saveSettings').onclick = () => {
+            config.work = parseInt(el('workIn').value) || 25;
+            config.break = parseInt(el('breakIn').value) || 5;
+            config.long = parseInt(el('longIn').value) || 15;
+            config.lbEnabled = el('lbToggle').classList.contains('active');
+            localStorage.setItem('pomoConfig', JSON.stringify(config));
+            stop(); timeLeft = config.work * 60; isWork = true; sessionsUntilLong = 4;
+            el('overlay').click(); updateUI();
+        };
+
         window.onresize = fit;
         updateUI();
     </script>
