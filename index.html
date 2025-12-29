@@ -3,116 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tydzień ISO</title>
-
+  <title>Moje widgety</title>
   <style>
-    html, body { height: 100%; }
-
-    :root{
-      --fg: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.72);
-      --border: rgba(255,255,255,.12);
-
-      --panel: rgba(0,0,0,.18);
-      --pill: rgba(255,255,255,.08);
-
-      --oddOutline: rgba(239,68,68,.45);
-      --evenOutline: rgba(34,197,94,.45);
-    }
-
-    html[data-theme="light"]{
-      --fg: rgba(0,0,0,.80);
-      --muted: rgba(0,0,0,.58);
-      --border: rgba(0,0,0,.10);
-
-      --panel: rgba(255,255,255,.58);
-      --pill: rgba(0,0,0,.05);
-
-      --oddOutline: rgba(239,68,68,.55);
-      --evenOutline: rgba(34,197,94,.55);
-    }
-
     body{
-      margin: 0;
-      background: transparent;
-      display: grid;
-      place-items: center;
+      margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:#0f0f10;
+      color:rgba(255,255,255,.9);
+      min-height:100vh;
+      display:grid;
+      place-items:center;
     }
-
-    .card{
-      min-width: 240px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 6px 24px rgba(0,0,0,.18);
+    .box{
+      width:min(520px, 92vw);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:16px;
+      background:rgba(255,255,255,.04);
     }
-
-    .top{
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 6px;
+    h1{ font-size:18px; margin:0 0 10px; }
+    a{
+      display:block;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      text-decoration:none;
+      color:inherit;
+      margin-top:10px;
+      background:rgba(0,0,0,.18);
     }
-
-    .week{
-      color: var(--fg);
-      font-size: 22px;
-      font-weight: 750;
-      line-height: 1.2;
-    }
-
-    .tag{
-      display: inline-block;
-      margin-top: 8px;
-      font-size: 12px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--pill);
-      color: var(--fg);
-    }
-
-    .tag.odd  { outline: 1px solid var(--oddOutline); }
-    .tag.even { outline: 1px solid var(--evenOutline); }
+    a:hover{ background:rgba(255,255,255,.06); }
+    .hint{ opacity:.7; font-size:12px; margin-top:12px; }
   </style>
 </head>
-
 <body>
-  <div class="card">
-    <div class="top" id="dateText">—</div>
-    <div class="week" id="weekText">—</div>
-    <div class="tag" id="parityTag">—</div>
+  <div class="box">
+    <h1>Widgety</h1>
+
+    <a href="./tydzien-na-studiach/">Tydzień na studiach</a>
+    <a href="./inny-widget/">Inny widget</a>
+
+    <div class="hint">Tip: ten link możesz też wkleić w Notion przez /embed.</div>
   </div>
-
-  <script>
-    const theme = new URLSearchParams(location.search).get("theme");
-    if (theme === "dark" || theme === "light") {
-      document.documentElement.dataset.theme = theme;
-    }
-
-    function isoWeek(date) {
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const day = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - day);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
-
-    const today = new Date();
-    const week = isoWeek(today);
-    const even = (week % 2 === 0);
-
-    document.getElementById("dateText").textContent =
-      today.toLocaleDateString("pl-PL", { weekday:"long", year:"numeric", month:"2-digit", day:"2-digit" });
-
-    document.getElementById("weekText").textContent = `Tydzień ${week}`;
-
-    const tag = document.getElementById("parityTag");
-    tag.textContent = even ? "parzysty" : "nieparzysty";
-    tag.classList.add(even ? "even" : "odd");
-  </script>
 </body>
 </html>
