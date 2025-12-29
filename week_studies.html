@@ -7,62 +7,58 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
         body {
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex; justify-content: center; align-items: center;
-            transition: transform 0.3s ease;
         }
-        /* Efekt Hover na całości */
-        body:hover { transform: scale(1.02); }
-
-        .widget { 
-            text-align: center; 
-            display: flex; flex-direction: column; gap: 4px;
-            /* Skalowanie oparte na zmiennej JS */
-            transform: scale(var(--scale, 1));
-            transform-origin: center;
+        #scaler {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            text-align: center; transition: transform 0.1s ease-out;
+            width: 300px; /* Baza dla skalowania */
         }
-
-        .date-text { font-size: 14px; opacity: 0.6; white-space: nowrap; }
-        .week-number { font-size: 48px; font-weight: 800; line-height: 1; margin: 4px 0; white-space: nowrap; }
-        .parity-value { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+        .date-text { font-size: 14px; font-weight: 500; opacity: 0.6; }
+        .week-number { font-size: 48px; font-weight: 700; line-height: 1; letter-spacing: -1px; margin: 4px 0; }
+        .parity-value { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-    <div class="widget">
-        <div id="dateText" class="date-text">—</div>
-        <div id="weekNumber" class="week-number">—</div>
-        <div id="parityText" class="parity-value">—</div>
+    <div id="scaler">
+        <div class="date-text" id="dateText">—</div>
+        <div class="week-number" id="weekNumber">—</div>
+        <div class="parity-value" id="parityText">—</div>
     </div>
 
     <script>
-        function autoScale() {
-            const width = window.innerWidth;
-            // Standardowa szerokość to ok. 300px. Jeśli okno ma 150px, skala = 0.5
-            const scale = Math.min(width / 300, 1.2); 
-            document.body.style.setProperty('--scale', scale);
-        }
-
         const getISOWeek = (d) => {
             const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
             return Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
         };
 
-        function update() {
+        function updateWidget() {
             const now = new Date();
             const week = getISOWeek(now);
             const isEven = week % 2 === 0;
-            document.getElementById("dateText").textContent = now.toLocaleDateString("pl-PL", { weekday: "long", day: "2-digit", month: "2-digit" });
+            
+            const dayName = now.toLocaleDateString("pl-PL", { weekday: "long" });
+            const dateStr = now.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+            document.getElementById("dateText").textContent = `${dayName.charAt(0).toUpperCase() + dayName.slice(1)}, ${dateStr}`;
             document.getElementById("weekNumber").textContent = `Tydzień ${week}`;
             const p = document.getElementById("parityText");
             p.textContent = isEven ? "parzysty" : "nieparzysty";
             p.style.color = isEven ? "#5fb6ff" : "#ff5f5f";
-            autoScale();
+            
+            fit();
         }
 
-        window.addEventListener('resize', autoScale);
-        update();
-        setInterval(update, 60000);
+        function fit() {
+            const container = document.getElementById('scaler');
+            const scale = Math.min(window.innerWidth / 300, window.innerHeight / 150, 1);
+            container.style.transform = `scale(${scale})`;
+        }
+
+        window.onresize = fit;
+        updateWidget();
     </script>
 </body>
 </html>
