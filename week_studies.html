@@ -3,104 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tydzień na studiach</title>
     <style>
-        /* Reset i usunięcie scrollbarów */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
-        
-        html, body { 
-            height: 100%; 
-            width: 100%;
-            overflow: hidden; /* Całkowite wyłączenie suwaków */
-            background: #191919;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: #ffffff;
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            color: white; text-align: center;
         }
-
         .widget { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 4px;
-            width: 95%; /* Margines bezpieczeństwa */
+            width: 100%; padding: 5px; 
+            display: flex; flex-direction: column; gap: 2px;
         }
-
+        /* Skalowanie: tekst nigdy nie będzie większy niż szerokość bloku */
         .date-text { 
-            /* Elastyczna czcionka: min 10px, idealnie 3vw, max 16px */
-            font-size: clamp(10px, 3vw, 16px); 
-            font-weight: 500; 
-            opacity: 0.6; 
-            white-space: nowrap;
+            font-size: clamp(10px, 4vw, 14px); 
+            opacity: 0.6; white-space: nowrap; 
         }
-
         .week-number {
-            /* Elastyczna czcionka: min 20px, idealnie 10vw, max 48px */
-            font-size: clamp(20px, 10vw, 48px); 
-            font-weight: 700; 
-            line-height: 1.1; 
-            letter-spacing: -1px;
-            margin: 2px 0;
+            font-size: clamp(20px, 12vw, 42px); 
+            font-weight: 800; line-height: 1; margin: 2px 0;
             white-space: nowrap;
         }
-
         .parity-value {
-            /* Elastyczna czcionka: min 12px, idealnie 4vw, max 20px */
-            font-size: clamp(12px, 4vw, 20px); 
-            font-weight: 700; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            white-space: nowrap;
+            font-size: clamp(10px, 5vw, 18px);
+            font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; white-space: nowrap;
         }
     </style>
 </head>
 <body>
     <div class="widget">
-        <div class="date-text" id="dateText">—</div>
-        <div class="week-number" id="weekNumber">—</div>
-        <div class="parity-value" id="parityText">—</div>
+        <div id="dateText" class="date-text">—</div>
+        <div id="weekNumber" class="week-number">—</div>
+        <div id="parityText" class="parity-value">—</div>
     </div>
-
     <script>
         const getISOWeek = (d) => {
             const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-            return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+            return Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
         };
-
-        const updateWidget = () => {
+        const update = () => {
             const now = new Date();
             const week = getISOWeek(now);
             const isEven = week % 2 === 0;
-            
-            const elDate = document.getElementById("dateText");
-            const elWeek = document.getElementById("weekNumber");
-            const elParity = document.getElementById("parityText");
-
-            const dayName = now.toLocaleDateString("pl-PL", { weekday: "long" });
-            const dateStr = now.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" });
-
-            elDate.textContent = `${dayName.charAt(0).toUpperCase() + dayName.slice(1)}, ${dateStr}`;
-            elWeek.textContent = `Tydzień ${week}`;
-            
-            elParity.textContent = isEven ? "parzysty" : "nieparzysty";
-            elParity.style.color = isEven ? "#5fb6ff" : "#ff5f5f"; 
+            document.getElementById("dateText").textContent = now.toLocaleDateString("pl-PL", { weekday: "short", day: "2-digit", month: "2-digit" });
+            document.getElementById("weekNumber").textContent = `Tydzień ${week}`;
+            const p = document.getElementById("parityText");
+            p.textContent = isEven ? "parzysty" : "nieparzysty";
+            p.style.color = isEven ? "#5fb6ff" : "#ff5f5f";
         };
-
-        updateWidget();
-        // Odświeżaj co godzinę, żeby data sama się zmieniła o północy
-        setInterval(updateWidget, 3600000);
+        update(); setInterval(update, 3600000);
     </script>
 </body>
 </html>
