@@ -8,45 +8,17 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; width: 100%; overflow: hidden; background: #191919; color: white; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; justify-content: center; align-items: center; text-align: center; }
-        
-        /* Zmiana szerokości bazy na 300px, aby pasowała do widżetu tygodnia */
-        #main-scaler { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            width: 300px; 
-            transition: transform 0.1s ease-out; 
-            padding: 5px; 
-        }
-
+        #main-scaler { display: flex; flex-direction: column; align-items: center; width: 300px; transition: transform 0.1s ease-out; padding: 5px; }
         .container, .display { display: flex; flex-direction: column; align-items: center; width: 100%; }
         .display { gap: 0; }
-
-        /* Zwiększona czcionka statystyk */
         .time-stats { font-size: 16px; font-weight: 700; opacity: 0.5; line-height: 1; order: 1; margin-bottom: -5px; position: relative; z-index: 2; letter-spacing: 0.5px; width: 100%; pointer-events: none; }
-        
         .timer-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; order: 2; z-index: 1; }
-        
-        /* GIGANTYCZNA CZCIONKA: Zwiększona z 96px na 110px i pogrubiona */
-        .timer-display { 
-            font-size: 110px; 
-            font-weight: 900; 
-            line-height: 0.85; 
-            letter-spacing: -5px; 
-            font-variant-numeric: tabular-nums; 
-            display: flex; 
-            align-items: center; 
-        }
-
+        .timer-display { font-size: 110px; font-weight: 900; line-height: 0.85; letter-spacing: -5px; font-variant-numeric: tabular-nums; display: flex; align-items: center; }
         .t-btn { cursor: pointer; transition: opacity 0.2s; -webkit-tap-highlight-color: transparent; }
         .t-btn:hover { opacity: 0.6; }
         .colon-box { display: flex; flex-direction: column; justify-content: center; gap: 12px; height: 100%; padding: 0 4px; margin-top: 5px; }
         .dot { width: 12px; height: 12px; background: white; border-radius: 50%; pointer-events: none; }
-
-        /* Status sesji */
         .status-text { font-size: 18px; font-weight: 900; opacity: 0.9; letter-spacing: 1.5px; order: 3; margin-top: 2px; line-height: 1; position: relative; z-index: 2; pointer-events: none; text-transform: uppercase; }
-
-        /* Ustawienia */
         .settings { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); flex-direction: column; gap: 10px; padding: 15px; background: #1f1f1f; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); z-index: 2000; width: 220px; }
         .settings.active { display: flex; }
         .settings-row { display: flex; gap: 8px; justify-content: center; }
@@ -111,7 +83,6 @@
         };
 
         const fit=()=>{ 
-            // Zmieniono dzielnik na 300, aby skala była identyczna jak w widżecie tygodnia
             const sc = Math.min(window.innerWidth / 300, window.innerHeight / 150, 1); 
             e('main-scaler').style.transform = `scale(${sc})`; 
         };
@@ -142,7 +113,15 @@
             c.lbEnabled=e('lbToggle').classList.contains('active'); localStorage.setItem('pomoConfig',JSON.stringify(c));
             stop(); t=c.work*60; w=true; sl=4; e('overlay').click(); update();
         };
-        e('reset').onclick=()=>{ if(confirm("Zresetować statystyki?")){ s={workSecs:0,breakSecs:0}; localStorage.setItem('pomoStats',JSON.stringify(s)); update(); e('overlay').click(); } };
+        
+        // RESET BEZ POTWIERDZENIA
+        e('reset').onclick=()=>{ 
+            s={workSecs:0,breakSecs:0}; 
+            localStorage.setItem('pomoStats',JSON.stringify(s)); 
+            update(); 
+            e('overlay').click(); 
+        };
+        
         window.onresize = fit; update();
     </script>
 </body>
