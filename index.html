@@ -1,48 +1,39 @@
-<!doctype html>
-<html lang="pl">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Tydzień</title>
-  <style>
-    :root { color-scheme: dark; }
-    body { margin:0; display:grid; place-items:center; height:100vh; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
-    .card { padding:14px 16px; border-radius:14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); min-width: 220px; }
-    .top { opacity:.85; font-size:12px; margin-bottom:6px; }
-    .week { font-size:22px; font-weight:700; line-height:1.2; }
-    .tag { display:inline-block; margin-top:8px; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18); }
-    .even { background: rgba(34,197,94,.16); }
-    .odd  { background: rgba(239,68,68,.16); }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="top" id="dateText"></div>
-    <div class="week" id="weekText"></div>
-    <div class="tag" id="parityTag"></div>
-  </div>
+<style>
+  :root { color-scheme: dark light; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    color: rgba(255,255,255,.88);
+  }
 
-  <script>
-    function isoWeek(date) {
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-      const day = d.getUTCDay() || 7;          // pon=1 ... niedz=7
-      d.setUTCDate(d.getUTCDate() + 4 - day);  // czwartek ISO
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-    }
+  .card {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 14px;
+    padding: 10px 12px;
+    backdrop-filter: blur(6px);
+  }
 
-    const today = new Date();
-    const week = isoWeek(today);
-    const even = week % 2 === 0;
+  .top { opacity:.75; font-size:12px; margin-bottom:4px; }
+  .week { font-size:20px; font-weight:700; line-height:1.2; }
+  .tag {
+    display:inline-block; margin-top:6px; font-size:12px;
+    padding:3px 10px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+  }
+  .even { outline: 1px solid rgba(34,197,94,.35); }
+  .odd  { outline: 1px solid rgba(239,68,68,.35); }
 
-    document.getElementById("dateText").textContent =
-      today.toLocaleDateString("pl-PL", { weekday:"long", year:"numeric", month:"2-digit", day:"2-digit" });
-
-    document.getElementById("weekText").textContent = `Tydzień ${week}`;
-
-    const tag = document.getElementById("parityTag");
-    tag.textContent = even ? "parzysty" : "nieparzysty";
-    tag.classList.add(even ? "even" : "odd");
-  </script>
-</body>
-</html>
+  @media (prefers-color-scheme: light) {
+    body { color: rgba(0,0,0,.78); }
+    .card { border-color: rgba(0,0,0,.10); }
+    .tag { border-color: rgba(0,0,0,.12); background: rgba(0,0,0,.04); }
+    .even { outline-color: rgba(34,197,94,.45); }
+    .odd  { outline-color: rgba(239,68,68,.45); }
+  }
+</style>
